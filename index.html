@@ -1,0 +1,1678 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#102a2a">
+  <meta name="application-name" content="Thirds">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icons/icon-192.png" type="image/png" sizes="192x192">
+  <title>Thirds — Private Money Planner</title>
+  <style>
+    :root {
+      --ink: #102a2a;
+      --muted: #61706d;
+      --paper: #f4f0e7;
+      --panel: #fffdf8;
+      --line: #dcd8cf;
+      --mint: #b8f28c;
+      --mint-deep: #7ed957;
+      --aqua: #83d9d0;
+      --gold: #f0bf61;
+      --coral: #f18472;
+      --lavender: #bdb2f4;
+      --danger: #a4382c;
+      --danger-bg: #fff0eb;
+      --ok: #1f694a;
+      --ok-bg: #ecf8ef;
+      --shadow: 0 18px 50px rgba(16, 42, 42, .08);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 7% 5%, rgba(184, 242, 140, .34), transparent 25rem),
+        radial-gradient(circle at 95% 30%, rgba(131, 217, 208, .22), transparent 27rem),
+        var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input, select { font: inherit; }
+    button { color: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    a { color: var(--ink); }
+
+    .shell { width: min(1180px, calc(100% - 36px)); margin: 0 auto; padding: 26px 0 100px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 38px; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-mark {
+      width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center;
+      background: var(--ink); color: var(--mint); box-shadow: var(--shadow); font-weight: 900;
+    }
+    .brand-copy strong { display: block; font-size: 1.05rem; letter-spacing: -.02em; }
+    .brand-copy span { display: block; color: var(--muted); font-size: .76rem; margin-top: 2px; }
+    .privacy-pill {
+      display: inline-flex; align-items: center; gap: 7px; padding: 8px 12px; border: 1px solid var(--line);
+      border-radius: 999px; background: rgba(255, 253, 248, .72); color: var(--muted); font-size: .8rem; font-weight: 700;
+    }
+    .privacy-pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--mint-deep); }
+
+    .desktop-nav { display: flex; gap: 5px; padding: 5px; border: 1px solid var(--line); background: rgba(255,253,248,.7); border-radius: 15px; }
+    .nav-button {
+      border: 0; background: transparent; border-radius: 11px; padding: 9px 14px; cursor: pointer;
+      color: var(--muted); font-size: .86rem; font-weight: 750;
+    }
+    .nav-button.active { color: var(--ink); background: var(--panel); box-shadow: 0 5px 18px rgba(16,42,42,.08); }
+
+    .view { display: none; animation: rise .28s ease; }
+    .view.active { display: block; }
+    @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    .hero { display: grid; grid-template-columns: 1.35fr .65fr; gap: 28px; align-items: end; margin-bottom: 26px; }
+    .eyebrow { margin: 0 0 10px; color: var(--muted); font-size: .76rem; font-weight: 850; text-transform: uppercase; letter-spacing: .14em; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 10px; max-width: 720px; font-size: clamp(2.25rem, 6vw, 5rem); line-height: .95; letter-spacing: -.065em; }
+    .hero p:not(.eyebrow) { margin: 0; max-width: 660px; color: var(--muted); line-height: 1.6; }
+    .month-card { background: var(--ink); color: white; padding: 24px; border-radius: var(--radius); box-shadow: var(--shadow); }
+    .month-card .label { color: #b9c8c5; font-size: .78rem; }
+    .month-card .value { margin: 8px 0 4px; color: var(--mint); font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 850; letter-spacing: -.04em; }
+    .month-card .sub { color: #b9c8c5; font-size: .78rem; }
+
+    .grid { display: grid; gap: 18px; }
+    .grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .card { background: rgba(255, 253, 248, .9); border: 1px solid rgba(220,216,207,.95); border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px; }
+    .card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+    .card-head h2 { margin-bottom: 5px; font-size: 1.08rem; letter-spacing: -.025em; }
+    .card-head p { margin-bottom: 0; color: var(--muted); font-size: .78rem; line-height: 1.45; }
+    .step { flex: none; width: 31px; height: 31px; display: grid; place-items: center; border-radius: 10px; background: #eef4e9; font-size: .76rem; font-weight: 900; }
+
+    .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .field { display: block; }
+    .field.wide { grid-column: 1 / -1; }
+    .field span { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 7px; color: var(--muted); font-size: .74rem; font-weight: 750; }
+    .field span small { color: #89928f; font-weight: 600; }
+    .input-wrap { position: relative; }
+    .input-wrap.prefix input { padding-left: 29px; }
+    .input-wrap.suffix input { padding-right: 38px; }
+    .input-wrap b { position: absolute; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: .84rem; pointer-events: none; }
+    .input-wrap.prefix b { left: 12px; }
+    .input-wrap.suffix b { right: 12px; }
+    input, select {
+      width: 100%; min-height: 45px; border: 1px solid var(--line); border-radius: 12px; background: #fff;
+      color: var(--ink); outline: none; padding: 10px 12px; transition: border-color .18s, box-shadow .18s;
+    }
+    input:focus, select:focus { border-color: var(--ink); box-shadow: 0 0 0 3px rgba(16,42,42,.08); }
+    input[type="range"] { min-height: 22px; border: 0; padding: 0; accent-color: var(--ink); box-shadow: none; background: transparent; }
+
+    .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; }
+    .mini-stat { min-width: 0; padding: 13px; background: #f4f1e9; border-radius: 13px; }
+    .mini-stat span { display: block; color: var(--muted); font-size: .67rem; }
+    .mini-stat strong { display: block; margin-top: 4px; overflow: hidden; text-overflow: ellipsis; font-size: .94rem; }
+
+    .rule-card { overflow: hidden; padding: 0; }
+    .rule-top { padding: 24px; }
+    .thirds-bar { display: grid; grid-template-columns: repeat(3, 1fr); height: 15px; overflow: hidden; }
+    .thirds-bar span:nth-child(1) { background: var(--mint-deep); }
+    .thirds-bar span:nth-child(2) { background: var(--aqua); }
+    .thirds-bar span:nth-child(3) { background: var(--gold); }
+    .rule-list { display: grid; gap: 4px; }
+    .rule-line { display: grid; grid-template-columns: 13px 1fr auto; align-items: center; gap: 10px; padding: 11px 0; border-bottom: 1px solid #ebe7de; }
+    .rule-line:last-child { border-bottom: 0; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .rule-line .name { font-size: .84rem; font-weight: 750; }
+    .rule-line .name small { display: block; color: var(--muted); font-size: .67rem; font-weight: 600; margin-top: 2px; }
+    .rule-line .money { text-align: right; font-size: .9rem; font-weight: 850; }
+
+    .spend-card { margin-top: 18px; }
+    .cashflow { display: grid; grid-template-columns: .72fr 1.28fr; gap: 26px; align-items: center; }
+    .donut-wrap { position: relative; width: min(100%, 220px); aspect-ratio: 1; margin: auto; }
+    .donut { width: 100%; height: 100%; border-radius: 50%; background: conic-gradient(var(--lavender) 0 25%, var(--coral) 25% 50%, var(--aqua) 50% 75%, var(--gold) 75% 100%); }
+    .donut::after { content: ""; position: absolute; inset: 24%; border-radius: 50%; background: var(--panel); }
+    .donut-copy { position: absolute; inset: 28%; z-index: 1; display: grid; align-content: center; text-align: center; }
+    .donut-copy small { color: var(--muted); font-size: .63rem; }
+    .donut-copy strong { margin-top: 3px; font-size: 1.08rem; letter-spacing: -.03em; }
+    .breakdown { display: grid; gap: 10px; }
+    .break-row { display: grid; grid-template-columns: 13px minmax(90px, 1fr) auto; gap: 10px; align-items: center; padding: 12px 14px; background: #f6f3ec; border-radius: 13px; }
+    .break-row .title { font-size: .8rem; font-weight: 780; }
+    .break-row .amount { font-size: .86rem; font-weight: 850; }
+    .break-row .amount small { display: block; color: var(--muted); font-size: .62rem; text-align: right; margin-top: 2px; }
+
+    .notice { margin-top: 14px; border-radius: 14px; padding: 13px 15px; font-size: .78rem; line-height: 1.45; }
+    .notice.ok { color: var(--ok); background: var(--ok-bg); border: 1px solid #cce9d4; }
+    .notice.bad { color: var(--danger); background: var(--danger-bg); border: 1px solid #f2c7bd; }
+    .notice.neutral { color: #5c5133; background: #fff8df; border: 1px solid #eadba4; }
+    .notice strong { font-weight: 900; }
+
+    .grocery-layout { display: grid; grid-template-columns: .95fr 1.05fr; gap: 24px; }
+    .grocery-total { padding: 22px; border-radius: 18px; color: white; background: var(--ink); }
+    .grocery-total .big { margin: 8px 0 2px; color: var(--mint); font-size: 2.8rem; font-weight: 900; letter-spacing: -.055em; }
+    .grocery-total .caption { color: #becbc8; font-size: .74rem; }
+    .grocery-total hr { border: 0; border-top: 1px solid rgba(255,255,255,.15); margin: 18px 0; }
+    .grocery-total .split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .grocery-total .split small { display: block; color: #becbc8; font-size: .65rem; }
+    .grocery-total .split strong { display: block; margin-top: 3px; font-size: .92rem; }
+    .food-alloc { display: grid; gap: 10px; margin-top: 17px; }
+    .food-line { display: grid; grid-template-columns: 86px 1fr 50px; align-items: center; gap: 10px; font-size: .72rem; }
+    .food-line span:first-child { color: var(--muted); }
+    .food-line strong { text-align: right; font-size: .75rem; }
+    .track { height: 8px; background: #ebe7de; border-radius: 20px; overflow: hidden; }
+    .track i { display: block; height: 100%; border-radius: inherit; background: var(--ink); }
+
+    .page-title { margin-bottom: 24px; }
+    .page-title h1 { font-size: clamp(2rem, 5vw, 3.5rem); }
+    .page-title p { color: var(--muted); margin-bottom: 0; }
+    .kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+    .kpi { padding: 20px; border-radius: 18px; border: 1px solid var(--line); background: rgba(255,253,248,.86); }
+    .kpi small { color: var(--muted); font-weight: 700; }
+    .kpi strong { display: block; margin-top: 8px; font-size: 1.75rem; letter-spacing: -.04em; }
+    .kpi em { display: block; margin-top: 5px; color: var(--muted); font-size: .7rem; font-style: normal; }
+
+    .primary-button, .ghost-button, .danger-button, .icon-button {
+      border: 0; border-radius: 12px; min-height: 43px; padding: 10px 15px; cursor: pointer; font-weight: 820; font-size: .82rem;
+    }
+    .primary-button { color: white; background: var(--ink); box-shadow: 0 8px 18px rgba(16,42,42,.14); }
+    .primary-button:hover { background: #1b4140; }
+    .ghost-button { border: 1px solid var(--line); background: white; }
+    .danger-button { color: var(--danger); border: 1px solid #edc1b7; background: var(--danger-bg); }
+    .icon-button { min-height: 34px; padding: 7px 10px; color: var(--muted); background: transparent; }
+    .button-row { display: flex; flex-wrap: wrap; gap: 10px; }
+
+    .transaction-form { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .transaction-form .wide { grid-column: 1 / -1; }
+    .transaction-form button { grid-column: 1 / -1; }
+    .chart { display: grid; gap: 14px; }
+    .chart-row { display: grid; grid-template-columns: 78px 1fr 70px; gap: 10px; align-items: center; font-size: .75rem; }
+    .chart-row > span:first-child { color: var(--muted); overflow: hidden; text-overflow: ellipsis; }
+    .bar-track { height: 11px; background: #ece8df; border-radius: 999px; overflow: hidden; }
+    .bar-track i { display: block; height: 100%; min-width: 0; border-radius: inherit; background: var(--aqua); transition: width .3s ease; }
+    .chart-row strong { text-align: right; font-size: .78rem; }
+    .empty { padding: 34px 10px; text-align: center; color: var(--muted); font-size: .8rem; }
+    .empty .empty-icon { width: 44px; height: 44px; display: grid; place-items: center; margin: 0 auto 12px; border-radius: 15px; background: #f1eee6; font-size: 1.2rem; }
+
+    .transactions { display: grid; gap: 8px; }
+    .transaction { display: grid; grid-template-columns: 42px 1fr auto auto; gap: 11px; align-items: center; padding: 11px 12px; border-radius: 14px; background: #f6f3ec; }
+    .tx-icon { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 12px; background: #e6eee8; font-size: .95rem; }
+    .tx-copy { min-width: 0; }
+    .tx-copy strong, .tx-copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tx-copy strong { font-size: .8rem; }
+    .tx-copy small { color: var(--muted); margin-top: 3px; font-size: .67rem; }
+    .tx-amount { font-size: .82rem; font-weight: 900; }
+
+    .section-gap { margin-top: 18px; }
+    .settings-stack { display: grid; gap: 18px; }
+    .line-items { display: grid; gap: 8px; }
+    .line-item { display: grid; grid-template-columns: 1fr 130px 36px; gap: 8px; align-items: center; }
+    .line-item input { min-height: 41px; }
+    .total-line { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); font-size: .82rem; }
+    .total-line strong { font-size: 1rem; }
+    .privacy-card { background: var(--ink); color: white; }
+    .privacy-card h2 { color: white; }
+    .privacy-card p { color: #b9c8c5; line-height: 1.6; }
+    .privacy-card .button-row button { background: white; color: var(--ink); border: 0; }
+    .privacy-card .button-row .danger-button { background: transparent; color: #ffb8aa; border: 1px solid rgba(255,184,170,.45); }
+    .fine-print { color: var(--muted); font-size: .7rem; line-height: 1.55; }
+    .footer { margin-top: 26px; color: var(--muted); text-align: center; font-size: .68rem; line-height: 1.5; }
+
+    .mobile-nav {
+      display: none; position: fixed; z-index: 20; left: 12px; right: 12px; bottom: max(12px, env(safe-area-inset-bottom));
+      grid-template-columns: repeat(3, 1fr); padding: 7px; border: 1px solid rgba(220,216,207,.96); border-radius: 18px;
+      background: rgba(255,253,248,.92); box-shadow: 0 16px 45px rgba(16,42,42,.2); backdrop-filter: blur(16px);
+    }
+    .mobile-nav .nav-button { display: grid; justify-items: center; gap: 3px; padding: 7px; }
+    .mobile-nav .nav-button b { font-size: 1rem; }
+    .mobile-nav .nav-button span { font-size: .62rem; }
+
+    .toast {
+      position: fixed; z-index: 30; left: 50%; bottom: 92px; transform: translate(-50%, 20px); opacity: 0;
+      pointer-events: none; background: var(--ink); color: white; border-radius: 999px; padding: 10px 16px;
+      box-shadow: var(--shadow); font-size: .76rem; font-weight: 750; transition: .22s ease;
+    }
+    .toast.show { transform: translate(-50%, 0); opacity: 1; }
+
+    @media (max-width: 820px) {
+      .shell { width: min(100% - 24px, 660px); padding-top: 16px; }
+      .desktop-nav { display: none; }
+      .mobile-nav { display: grid; }
+      .topbar { margin-bottom: 28px; }
+      .hero, .grid.two, .grocery-layout { grid-template-columns: 1fr; }
+      .hero { align-items: stretch; }
+      h1 { font-size: clamp(2.55rem, 12vw, 4.3rem); }
+      .cashflow { grid-template-columns: 1fr; }
+      .donut-wrap { width: 190px; }
+      .kpis { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 500px) {
+      .shell { width: min(100% - 20px, 520px); }
+      .privacy-pill { padding: 7px 9px; font-size: .67rem; }
+      .brand-copy span { display: none; }
+      .card, .rule-top { padding: 18px; }
+      .field-grid, .transaction-form { grid-template-columns: 1fr; }
+      .field.wide, .transaction-form .wide, .transaction-form button { grid-column: auto; }
+      .stat-row { grid-template-columns: 1fr; }
+      .mini-stat { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+      .mini-stat strong { margin-top: 0; }
+      .grocery-total .big { font-size: 2.35rem; }
+      .grid.three { grid-template-columns: 1fr; }
+      .transaction { grid-template-columns: 38px 1fr auto; }
+      .transaction .icon-button { grid-column: 3; padding: 0 5px; min-height: 24px; }
+      .line-item { grid-template-columns: 1fr 105px 32px; }
+      .chart-row { grid-template-columns: 70px 1fr 58px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
+    }
+
+    /* Account, goal, and investing tools keep the original Thirds palette. */
+    [hidden] { display: none !important; }
+    .desktop-nav .nav-button { padding: 9px 11px; }
+    .mobile-nav { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .stack { display: grid; gap: 14px; }
+    .muted { color: var(--muted); font-size: .78rem; line-height: 1.55; }
+    .badge { display: inline-block; padding: 5px 9px; border-radius: 999px; background: #eaf2e5; font-size: .68rem; font-weight: 800; }
+    .item-card { padding: 17px; border: 1px solid var(--line); border-radius: 16px; background: #fffdf8; min-width: 0; }
+    .item-card h3 { font-size: .95rem; margin-bottom: 7px; overflow-wrap: anywhere; }
+    .item-card .value { font-size: 1.65rem; font-weight: 850; letter-spacing: -.04em; margin: 10px 0; }
+    .item-head { display: flex; justify-content: space-between; align-items: start; gap: 12px; }
+    .item-head > div { min-width: 0; }
+    .item-card .track { height: 10px; margin: 12px 0; }
+    .item-card .track i { background: var(--mint-deep); }
+    .check-label { display: flex; align-items: start; gap: 10px; color: var(--muted); font-size: .78rem; line-height: 1.5; }
+    input[type="checkbox"] { width: 18px; height: 18px; min-height: 18px; margin-top: 2px; flex: none; accent-color: var(--ink); }
+    .table-scroll { overflow: auto; max-height: 540px; border-radius: 12px; border: 1px solid var(--line); }
+    table { width: 100%; border-collapse: collapse; font-size: .75rem; }
+    th, td { padding: 11px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: middle; }
+    th { color: var(--muted); background: #f4f1e9; white-space: nowrap; }
+    td select { min-width: 110px; min-height: 36px; font-size: .73rem; }
+    .table-scroll td:nth-child(3) { min-width: 150px; overflow-wrap: anywhere; }
+    .table-scroll input[type="checkbox"] { width: 18px; }
+    .invalid-row { background: var(--danger-bg); }
+    .duplicate-row { opacity: .65; }
+    .compact-result { padding: 13px 15px; background: #f4f1e9; border-radius: 13px; }
+    .compact-result strong { display: block; margin-bottom: 5px; }
+    .symbol { font-size: 1.1rem; letter-spacing: -.03em; }
+    .stock-inputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+    .stock-inputs input { min-height: 39px; }
+    .source-links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 12px; font-size: .72rem; }
+    details > summary { cursor: pointer; font-size: .84rem; font-weight: 800; }
+    details p, details ol { font-size: .78rem; color: var(--muted); line-height: 1.6; }
+    .subnav-link { border: 0; padding: 0; background: none; text-decoration: underline; cursor: pointer; font: inherit; }
+    .form-message { margin: 12px 0 0; }
+    .item-actions { display: flex; gap: 3px; flex-shrink: 0; }
+    .full-width { grid-column: 1 / -1; }
+    @media (max-width: 500px) {
+      .stock-inputs { grid-template-columns: 1fr; }
+      .mobile-nav .nav-button { padding: 7px 2px; }
+      .mobile-nav .nav-button span { font-size: .58rem; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">⅓</div>
+        <div class="brand-copy"><strong>Thirds</strong><span>Private money planner</span></div>
+      </div>
+      <nav class="desktop-nav" aria-label="Primary navigation">
+        <button class="nav-button active" data-view="plan">Plan</button>
+        <button class="nav-button" data-view="activity">Activity</button>
+        <button class="nav-button" data-view="accounts">Accounts</button>
+        <button class="nav-button" data-view="settings">Settings</button>
+      </nav>
+      <div class="privacy-pill" id="saveStatus" role="status">Local-only data</div>
+    </header>
+
+    <section class="view active" id="view-plan">
+      <div class="hero">
+        <div>
+          <p class="eyebrow" id="monthLabel">Your monthly plan</p>
+          <h1>Give every third a job.</h1>
+          <p>Your savings and investments happen first. The app then turns the final third into a realistic plan for bills, your car, groceries, and going out.</p>
+        </div>
+        <div class="month-card">
+          <div class="label">Estimated monthly take-home</div>
+          <div class="value" id="heroNet">$0</div>
+          <div class="sub" id="heroAnnual">$0 per year after estimated tax</div>
+        </div>
+      </div>
+
+      <div class="grid two">
+        <article class="card">
+          <div class="card-head">
+            <div><h2>Income estimate</h2><p>Change these whenever your hours or wage change.</p></div>
+            <div class="step">01</div>
+          </div>
+          <div class="field-grid">
+            <label class="field"><span>Hourly wage</span><div class="input-wrap prefix"><b>$</b><input id="hourlyWage" type="number" min="0" step="0.25" inputmode="decimal"></div></label>
+            <label class="field"><span>Hours per week</span><div class="input-wrap suffix"><input id="hoursWeek" type="number" min="0" max="168" step="0.5" inputmode="decimal"><b>hrs</b></div></label>
+            <label class="field"><span>Estimated taxes <small>withholding</small></span><div class="input-wrap suffix"><input id="taxRate" type="number" min="0" max="60" step="0.5" inputmode="decimal"><b>%</b></div></label>
+            <label class="field"><span>Other monthly income</span><div class="input-wrap prefix"><b>$</b><input id="otherIncome" type="number" min="0" step="10" inputmode="decimal"></div></label>
+          </div>
+          <div class="stat-row">
+            <div class="mini-stat"><span>Gross / month</span><strong id="grossMonth">$0</strong></div>
+            <div class="mini-stat"><span>Est. taxes</span><strong id="taxMonth">$0</strong></div>
+            <div class="mini-stat"><span>Net / week</span><strong id="netWeek">$0</strong></div>
+          </div>
+        </article>
+
+        <article class="card rule-card">
+          <div class="rule-top">
+            <div class="card-head">
+              <div><h2>Your non-negotiable thirds</h2><p>Calculated from take-home pay.</p></div>
+              <div class="step">02</div>
+            </div>
+            <div class="rule-list">
+              <div class="rule-line"><i class="dot" style="background:var(--mint-deep)"></i><div class="name">Savings<small>33⅓% of take-home</small></div><div class="money" id="saveAmount">$0</div></div>
+              <div class="rule-line"><i class="dot" style="background:var(--aqua)"></i><div class="name">Brokerage<small>50% of investment third</small></div><div class="money" id="brokerageAmount">$0</div></div>
+              <div class="rule-line"><i class="dot" style="background:#4aa89f"></i><div class="name">Roth IRA · S&amp;P 500<small>50% of investment third</small></div><div class="money" id="rothAmount">$0</div></div>
+              <div class="rule-line"><i class="dot" style="background:var(--gold)"></i><div class="name">Available to spend<small>Final 33⅓%</small></div><div class="money" id="spendAmount">$0</div></div>
+            </div>
+          </div>
+          <div class="thirds-bar" aria-label="One third savings, one third investments, one third spending"><span></span><span></span><span></span></div>
+        </article>
+      </div>
+
+      <article class="card spend-card">
+        <div class="card-head">
+          <div><h2>What the spending third can cover</h2><p>Recurring costs are reserved before your going-out money.</p></div>
+          <div class="step">03</div>
+        </div>
+        <div class="cashflow">
+          <div class="donut-wrap">
+            <div class="donut" id="spendDonut"></div>
+            <div class="donut-copy"><small>SPENDING POOL</small><strong id="donutTotal">$0</strong></div>
+          </div>
+          <div>
+            <div class="breakdown">
+              <div class="break-row"><i class="dot" style="background:var(--lavender)"></i><div class="title">Fixed bills</div><div class="amount" id="billsAmount">$0<small>monthly</small></div></div>
+              <div class="break-row"><i class="dot" style="background:var(--coral)"></i><div class="title">Vehicle</div><div class="amount" id="vehicleAmount">$0<small>monthly</small></div></div>
+              <div class="break-row"><i class="dot" style="background:var(--aqua)"></i><div class="title">Groceries</div><div class="amount" id="groceryMonthAmount">$0<small>monthly estimate</small></div></div>
+              <div class="break-row"><i class="dot" style="background:var(--gold)"></i><div class="title">Going out</div><div class="amount" id="goingOutAmount">$0<small id="goingOutWeekly">$0 / week</small></div></div>
+            </div>
+            <div class="notice ok" id="planNotice"></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card section-gap">
+        <div class="card-head">
+          <div><h2>Bulking grocery target</h2><p>A staple-heavy estimate that adjusts with calories, protein, and local food prices.</p></div>
+          <div class="step">04</div>
+        </div>
+        <div class="grocery-layout">
+          <div class="field-grid">
+            <label class="field wide"><span>Daily calories <small id="calorieReadout">3,200 kcal</small></span><input id="calories" type="range" min="2000" max="5000" step="100"></label>
+            <label class="field wide"><span>Daily protein <small id="proteinReadout">180 g</small></span><input id="protein" type="range" min="80" max="300" step="5"></label>
+            <label class="field wide"><span>Local price level</span><select id="priceLevel"><option value="0.85">Very frugal / bulk staples</option><option value="1">Typical discount grocery</option><option value="1.2">Higher local prices</option><option value="1.4">Convenience-heavy</option></select></label>
+            <div class="notice neutral wide">This is a budgeting estimate, not a meal plan. It assumes home cooking and inexpensive proteins, rice/pasta/oats, produce, and calorie-dense fats.</div>
+          </div>
+          <div>
+            <div class="grocery-total">
+              <small>RECOMMENDED WEEKLY GROCERY CAP</small>
+              <div class="big" id="groceryWeekAmount">$0</div>
+              <div class="caption" id="groceryDailyAmount">$0 per day · 7 days</div>
+              <hr>
+              <div class="split">
+                <div><small>MONTHLY RESERVE</small><strong id="groceryMonthlyMini">$0</strong></div>
+                <div><small>ROOM VS. SPEND THIRD</small><strong id="groceryRoom">$0</strong></div>
+              </div>
+            </div>
+            <div class="food-alloc" id="foodAllocation"></div>
+          </div>
+        </div>
+      </article>
+      <div class="footer">Planning tool only—not financial, tax, or nutrition advice. Roth IRA eligibility and contribution limits depend on tax rules and your income.</div>
+    </section>
+
+    <section class="view" id="view-activity">
+      <div class="page-title"><p class="eyebrow">Spending log</p><h1>See where the final third went.</h1><p>Log purchases or import bank and credit card CSVs in Accounts. Refunds reduce spending; transfers and income stay outside the spending total.</p></div>
+      <label class="field" style="max-width:240px;margin-bottom:18px"><span>Activity month</span><input id="activityMonth" type="month"></label>
+      <div class="kpis">
+        <div class="kpi"><small>Spent in selected month</small><strong id="actualSpent">$0</strong><em>Purchases less refunds · transfers excluded</em></div>
+        <div class="kpi"><small>Spending-third remaining</small><strong id="actualRemaining">$0</strong><em id="actualRemainingSub">Before unlogged purchases</em></div>
+        <div class="kpi"><small>Largest category</small><strong id="topCategory">—</strong><em id="topCategoryAmount">No spending yet</em></div>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <div class="card-head"><div><h2>Add a purchase</h2><p>Saved only on this device.</p></div></div>
+          <form id="transactionForm" class="transaction-form">
+            <label class="field"><span>Amount</span><div class="input-wrap prefix"><b>$</b><input id="txAmount" type="number" min="0.01" step="0.01" required inputmode="decimal"></div></label>
+            <label class="field"><span>Category</span><select id="txCategory"><option>Groceries</option><option>Going out</option><option>Gas</option><option>Vehicle</option><option>Bills</option><option>Other</option></select></label>
+            <label class="field"><span>Date</span><input id="txDate" type="date" required></label>
+            <label class="field"><span>Note <small>optional</small></span><input id="txNote" type="text" maxlength="60" placeholder="Lunch, gas, groceries…"></label>
+            <label class="field"><span>Account / card <small>optional</small></span><select id="txAccount"></select></label>
+            <label class="field"><span>Entry type</span><select id="txKind"><option value="expense">Purchase</option><option value="refund">Refund</option><option value="transfer">Transfer / card payment</option><option value="income">Income</option></select></label>
+            <button class="primary-button" type="submit">Add entry</button>
+          </form>
+          <div class="notice neutral" id="transactionMessage" hidden></div>
+        </article>
+        <article class="card">
+          <div class="card-head"><div><h2>Selected month's breakdown</h2><p>Purchases less refunds by category.</p></div></div>
+          <div class="chart" id="categoryChart"></div>
+        </article>
+      </div>
+      <article class="card section-gap">
+        <div class="card-head"><div><h2>Recent activity</h2><p id="transactionCount">0 entries this month</p></div></div>
+        <div class="transactions" id="transactionList"></div>
+      </article>
+    </section>
+
+
+    <section class="view" id="view-accounts">
+      <div class="page-title"><p class="eyebrow">Your money, together</p><h1>Accounts with a purpose.</h1><p>Track balances, import statements, compare card rewards, and watch your goals grow.</p></div>
+      <nav class="button-row" aria-label="Account sections" style="margin-bottom:18px"><a class="ghost-button" href="#accountOverview" style="text-decoration:none">Balances</a><a class="ghost-button" href="#accountImports" style="text-decoration:none">Import activity</a><a class="ghost-button" href="#cardRewards" style="text-decoration:none">Rewards</a><a class="ghost-button" href="#savingsGoals" style="text-decoration:none">Savings goals</a></nav>
+      <div class="kpis">
+        <div class="kpi" id="accountOverview"><small>Tracked assets</small><strong id="accountAssets">$0</strong><em>Balance snapshots · not live synced</em></div>
+        <div class="kpi"><small>Credit card balances</small><strong id="accountDebt">$0</strong><em>Amounts owed across tracked cards</em></div>
+        <div class="kpi"><small>Tracked net worth</small><strong id="accountNet">$0</strong><em>Tracked assets less card balances only</em></div>
+      </div>
+      <div class="grid two">
+        <article class="card">
+          <div class="card-head"><div><h2>Your accounts</h2><p>Balances are dated snapshots. Logging or importing activity does not change them.</p></div></div>
+          <div id="accountList" class="stack"></div>
+          <div class="button-row section-gap"><button class="ghost-button" id="exportAccounts" type="button">Export accounts CSV</button><button class="ghost-button" id="exportTransactions" type="button">Export activity CSV</button></div>
+        </article>
+        <article class="card">
+          <div class="card-head"><div><h2 id="accountFormTitle">Add an account or card</h2><p>Use a nickname. No account numbers, passwords, or API keys.</p></div></div>
+          <form id="accountForm" class="field-grid">
+            <input id="accountId" type="hidden">
+            <label class="field"><span>Nickname</span><input id="accountName" maxlength="45" required placeholder="Everyday checking"></label>
+            <label class="field"><span>Type</span><select id="accountType"><option value="checking">Checking</option><option value="savings">Savings</option><option value="brokerage">Brokerage</option><option value="roth">Roth IRA</option><option value="credit">Credit card</option></select></label>
+            <label class="field"><span id="balanceLabel">Current balance ($)</span><input id="accountBalance" type="number" step="0.01" required value="0"></label>
+            <label class="field"><span>Balance as of</span><input id="accountDate" type="date" required></label>
+            <div class="full-width" id="cardFields" hidden>
+              <div class="field-grid">
+                <label class="field"><span>Rewards type</span><select id="rewardUnit"><option value="cash">Cash back (%)</option><option value="points">Points / miles per $</option></select></label>
+                <label class="field"><span>Current reward balance <small>cash $ or points</small></span><input id="rewardBalance" type="number" min="0" step="0.01" value="0"></label>
+                <label class="field"><span>Base rate <small>% or points/$</small></span><input id="rateBase" type="number" min="0" max="100" step="0.01" value="1"></label>
+                <label class="field"><span>Groceries rate</span><input id="rateGroceries" type="number" min="0" max="100" step="0.01" value="1"></label>
+                <label class="field"><span>Dining / going out rate</span><input id="rateDining" type="number" min="0" max="100" step="0.01" value="1"></label>
+                <label class="field"><span>Gas rate</span><input id="rateGas" type="number" min="0" max="100" step="0.01" value="1"></label>
+                <label class="field"><span>Value per point <small>cents · points only</small></span><input id="rewardCPP" type="number" min="0" max="100" step="0.01" value="1"></label>
+              </div>
+              <p class="fine-print section-gap">Enter your card's current terms. Estimates exclude caps, merchant exclusions, fees, and interest. Statement reward balances are entered separately from estimated earnings.</p>
+            </div>
+            <div class="button-row full-width"><button type="submit" class="primary-button" id="saveAccount">Save account</button><button type="button" class="ghost-button" id="cancelAccount" hidden>Cancel edit</button></div>
+          </form>
+          <p class="notice bad form-message" id="accountMessage" role="status" hidden></p>
+        </article>
+      </div>
+      <article class="card section-gap" id="accountImports">
+        <div class="card-head"><div><h2>Bring in bank &amp; card activity</h2><p>Export a CSV from your bank's website, choose its account, map the columns, then review every row before importing.</p></div><span class="badge">On this device</span></div>
+        <div class="field-grid">
+          <label class="field"><span>Import into account</span><select id="csvAccount"></select></label>
+          <label class="field"><span>Bank / credit card CSV <small>up to 2 MB / 2,000 rows</small></span><input id="csvFile" type="file" accept=".csv,.tsv,text/csv,text/tab-separated-values"></label>
+        </div>
+        <div class="button-row section-gap"><button class="ghost-button" type="button" id="csvTemplate">Download CSV template</button><button class="ghost-button" type="button" id="undoImport" hidden>Undo last CSV import</button></div>
+        <p class="notice neutral" id="csvMessage" role="status" hidden></p>
+        <div id="csvMapper" class="section-gap" hidden>
+          <div class="field-grid">
+            <label class="field"><span>Date column</span><select id="mapDate"></select></label>
+            <label class="field"><span>Description column</span><select id="mapNote"></select></label>
+            <label class="field"><span>Amount column <small>or debit + credit below</small></span><select id="mapAmount"></select></label>
+            <label class="field"><span>Amount convention</span><select id="csvSign"><option value="positive">Positive = purchase; negative = credit</option><option value="negative">Negative = purchase; positive = credit</option></select></label>
+            <label class="field"><span>Debit / charge column <small>optional</small></span><select id="mapDebit"></select></label>
+            <label class="field"><span>Credit / deposit column <small>optional</small></span><select id="mapCredit"></select></label>
+            <label class="field"><span>Category column <small>optional</small></span><select id="mapCategory"></select></label>
+            <label class="field"><span>Transaction ID column <small>optional</small></span><select id="mapExternal"></select></label>
+            <label class="field"><span>Status column <small>optional · pending excluded</small></span><select id="mapStatus"></select></label>
+            <label class="field"><span>Type column <small>optional</small></span><select id="mapKind"></select></label>
+            <label class="field"><span>Date format</span><select id="csvDateFormat"><option value="mdy">MM/DD/YYYY (US) or YYYY-MM-DD</option><option value="dmy">DD/MM/YYYY or YYYY-MM-DD</option></select></label>
+          </div>
+          <div class="button-row section-gap"><button class="primary-button" type="button" id="previewCsv">Preview &amp; classify rows</button><button class="ghost-button" type="button" id="cancelCsv">Cancel</button></div>
+          <p class="fine-print section-gap">Column labels and descriptions help suggest categories. Check credits carefully: a refund is different from income. Mark card payments and transfers as Transfer to avoid counting them as purchases. Pending rows are excluded when a status column is mapped.</p>
+        </div>
+        <div id="csvReview" class="section-gap" hidden>
+          <p class="notice neutral" id="csvReviewSummary"></p>
+          <div class="table-scroll"><table><thead><tr><th>Import</th><th>Date</th><th>Description</th><th>Amount</th><th>Type</th><th>Category</th><th>Review</th></tr></thead><tbody id="csvRows"></tbody></table></div>
+          <div class="button-row section-gap"><button type="button" class="primary-button" id="commitCsv">Import selected rows</button></div>
+          <p class="fine-print section-gap">Duplicates use bank IDs when available, otherwise account + date + amount + description + occurrence count. Identical legitimate purchases already logged manually may need manual review. The import leaves income estimates and balance snapshots unchanged.</p>
+        </div>
+        <details class="section-gap"><summary>About automatic bank linking</summary><p>This standalone version uses manual balances and local CSV imports. Automatic syncing needs a hosted backend and an authorized bank-data provider such as Plaid. The server must keep provider credentials and access tokens private. It may involve provider fees and sharing data with that provider.</p><p><a href="https://plaid.com/docs/quickstart/" target="_blank" rel="noopener noreferrer">Secure bank-linking architecture ↗</a></p></details>
+      </article>
+      <div class="grid two section-gap" id="cardRewards">
+        <article class="card">
+          <div class="card-head"><div><h2>Rewards overview</h2><p>Only tracked credit cards. Reward values are estimates using your rates.</p></div></div>
+          <div class="stat-row"><div class="mini-stat"><span>Current rewards value</span><strong id="rewardTotal">$0</strong></div><div class="mini-stat"><span>Est. earned this month</span><strong id="rewardsEarned">$0</strong></div><div class="mini-stat"><span>Tracked cards</span><strong id="rewardCardCount">0</strong></div></div>
+          <div id="rewardsList" class="stack section-gap"></div>
+          <p class="fine-print section-gap">The current balance is the amount you enter from your issuer. Monthly earnings are a separate estimate from logged purchases less refunds; they are not added to that balance or your spending budget.</p>
+        </article>
+        <article class="card">
+          <div class="card-head"><div><h2>Which card for this purchase?</h2><p>Compare estimated reward value for spending already in your budget.</p></div></div>
+          <div class="field-grid"><label class="field"><span>Category</span><select id="bestCategory"><option>Groceries</option><option>Going out</option><option>Gas</option><option>Vehicle</option><option>Bills</option><option>Other</option></select></label><label class="field"><span>Purchase amount ($)</span><input id="bestAmount" type="number" min="0" step="0.01" value="50"></label></div>
+          <div id="bestCardResult" class="section-gap"></div>
+          <p class="fine-print section-gap">Check merchant eligibility and category caps with your issuer. Interest can cost more than the reward; this comparison does not account for balances carried.</p>
+        </article>
+      </div>
+      <article class="card section-gap" id="savingsGoals">
+        <div class="card-head"><div><h2>Savings goals</h2><p>Give part of your savings third a purpose. Goals earmark money; they do not add assets to net worth.</p></div><span class="badge" id="goalPool"></span></div>
+        <div id="goalAllocationNotice" class="notice neutral" hidden></div>
+        <div id="goalList" class="grid two section-gap"></div>
+        <details class="section-gap" id="goalEditor" open><summary id="goalFormTitle">Add a goal</summary>
+          <form id="goalForm" class="field-grid section-gap">
+            <input id="goalId" type="hidden">
+            <label class="field"><span>Goal name</span><input id="goalName" required maxlength="45" placeholder="New car"></label>
+            <label class="field"><span>Target amount ($)</span><input id="goalTarget" type="number" required min="0.01" step="0.01" placeholder="5000"></label>
+            <label class="field"><span>Already saved / earmarked ($)</span><input id="goalSaved" type="number" required min="0" step="0.01" value="0"></label>
+            <label class="field"><span>Funded from <small>optional</small></span><select id="goalAccount"></select></label>
+            <label class="field"><span>Share of monthly savings (%)</span><input id="goalPercent" type="number" required min="0" max="100" step="0.1" value="50"></label>
+            <label class="field"><span>Target date <small>optional</small></span><input id="goalDate" type="date"></label>
+            <div class="button-row full-width"><button type="submit" class="primary-button">Save goal</button><button type="button" id="cancelGoal" class="ghost-button" hidden>Cancel edit</button></div>
+          </form>
+          <p class="notice bad form-message" id="goalMessage" role="status" hidden></p>
+        </details>
+        <p class="fine-print section-gap">Projections use your current savings rate and no investment returns. Update saved amounts after actually moving money. Linking an account helps check that goals do not earmark more cash than its snapshot balance.</p>
+      </article>
+    </section>
+
+    <section class="view" id="view-invest">
+      <div class="page-title"><p class="eyebrow">Small buys, on purpose</p><h1>Your next paycheck plan.</h1><p>Keep your Roth split, then plan small brokerage purchases using a watchlist and targets you choose.</p></div>
+      <div class="grid two">
+        <article class="card">
+          <div class="card-head"><div><h2>Start with take-home pay</h2><p>One third to savings, one third to investing, one third to spending.</p></div></div>
+          <div class="field-grid">
+            <label class="field"><span>Pay frequency</span><select id="payFrequency"><option value="52">Weekly</option><option value="26">Every two weeks</option><option value="24">Twice a month</option><option value="12">Monthly</option></select></label>
+            <label class="field"><span>Actual paycheck ($) <small>blank = estimate</small></span><input id="payNet" type="number" min="0" step="0.01" placeholder="Use income estimate"></label>
+          </div>
+          <div class="rule-list section-gap">
+            <div class="rule-line"><i class="dot" style="background:var(--mint-deep)"></i><div class="name">Savings</div><div class="money" id="paySavings"></div></div>
+            <div class="rule-line"><i class="dot" style="background:var(--aqua)"></i><div class="name">Roth IRA · S&amp;P 500</div><div class="money" id="payRoth"></div></div>
+            <div class="rule-line"><i class="dot" style="background:var(--aqua)"></i><div class="name">Brokerage research budget<small>One sixth of this paycheck</small></div><div class="money" id="payBrokerage"></div></div>
+            <div class="rule-line"><i class="dot" style="background:var(--gold)"></i><div class="name">Spending</div><div class="money" id="paySpending"></div></div>
+          </div>
+          <p class="fine-print section-gap" id="payEstimateLabel"></p>
+          <p class="fine-print">Check your Roth eligibility and actual year-to-date IRA contributions before depositing. The Settings guardrail projects annual deposits; it does not track contributions made elsewhere.</p>
+        </article>
+        <article class="card">
+          <div class="card-head"><div><h2>Set your research preferences</h2><p>Recommendations here follow your allocation targets, not a prediction of stock returns.</p></div></div>
+          <label class="field"><span>Money needed in</span><select id="investHorizon"><option value="unset">Choose a time horizon</option><option value="short">Less than 5 years</option><option value="long">5+ years</option></select></label>
+          <label class="field section-gap"><span>Other brokerage stock / fund holdings ($)<small>outside this watchlist</small></span><input id="otherHoldings" type="number" min="0" step="0.01" value="0"></label>
+          <label class="check-label section-gap"><input id="fractionalShares" type="checkbox"><span>My broker supports fractional shares for the stocks I select. Otherwise, enter current prices to calculate whole-share quantities.</span></label>
+          <label class="check-label section-gap"><input id="investRisk" type="checkbox"><span>I understand individual stocks can lose value, and I have reviewed each selected company, its valuation, and overlap with my Roth holdings.</span></label>
+          <p class="fine-print section-gap">“Small buys” means small dollar amounts, not penny stocks or small-cap screening. The examples below start unapproved. No live prices, forecasts, trade execution, or automated stock research are included.</p>
+        </article>
+      </div>
+      <article class="card section-gap">
+        <div class="card-head"><div><h2>A watchlist you can explain</h2><p>Starter examples for your research. Edit or replace them, enter current holding values, and set target percentages of your brokerage stock / fund holdings. Leave room for holdings outside the list if needed.</p></div><button class="ghost-button" id="addStock" type="button">+ Add stock</button></div>
+        <div id="stockList" class="grid two"></div>
+        <p class="fine-print section-gap">Targets across this list must add up to 100% or less. Unused target percentages leave room for holdings outside this list. Holding values and optional quotes are entered by you; the app does not refresh them. These targets do not measure diversification across your Roth or other accounts.</p>
+      </article>
+      <article class="card section-gap">
+        <div class="card-head"><div><h2>Suggested buys for this paycheck</h2><p>Only companies marked “Researched and approved” qualify. Suggestions favor the largest dollar gaps below your chosen targets.</p></div></div>
+        <div id="investPlan" class="stack"></div>
+        <div class="button-row section-gap"><button class="primary-button" id="exportInvestPlan" type="button">Export paycheck plan CSV</button></div>
+        <p class="fine-print section-gap">This is an allocation worksheet, not a buy signal. No money moves. Review the plan and current prices in your brokerage before placing orders. Fractional availability and execution depend on your broker.</p>
+        <div class="source-links"><a href="https://www.investor.gov/introduction-investing/getting-started/asset-allocation" target="_blank" rel="noopener noreferrer">SEC: diversification ↗</a><a href="https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/investor-bulletins/fractional-share-investing-buying-slice-instead-whole-share" target="_blank" rel="noopener noreferrer">SEC: fractional shares ↗</a></div>
+      </article>
+    </section>
+
+    <section class="view" id="view-settings">
+      <div class="page-title"><p class="eyebrow">Monthly commitments</p><h1>Make the plan match real life.</h1><p>Add recurring bills and vehicle expenses. These amounts are deducted before going-out money.</p></div>
+      <div class="settings-stack">
+        <div class="grid two">
+          <article class="card">
+            <div class="card-head"><div><h2>Vehicle costs</h2><p>Monthly estimates for everything required to drive.</p></div></div>
+            <div class="field-grid">
+              <label class="field"><span>Car payment</span><div class="input-wrap prefix"><b>$</b><input id="carPayment" type="number" min="0" step="5" inputmode="decimal"></div></label>
+              <label class="field"><span>Insurance</span><div class="input-wrap prefix"><b>$</b><input id="carInsurance" type="number" min="0" step="5" inputmode="decimal"></div></label>
+              <label class="field"><span>Gas</span><div class="input-wrap prefix"><b>$</b><input id="carGas" type="number" min="0" step="5" inputmode="decimal"></div></label>
+              <label class="field"><span>Maintenance reserve</span><div class="input-wrap prefix"><b>$</b><input id="carMaintenance" type="number" min="0" step="5" inputmode="decimal"></div></label>
+              <label class="field wide"><span>Parking, registration &amp; other</span><div class="input-wrap prefix"><b>$</b><input id="carOther" type="number" min="0" step="5" inputmode="decimal"></div></label>
+            </div>
+            <div class="total-line"><span>Total vehicle reserve</span><strong id="vehicleSettingsTotal">$0 / month</strong></div>
+          </article>
+
+          <article class="card">
+            <div class="card-head"><div><h2>Other recurring bills</h2><p>Rent, phone, subscriptions, debt, or anything else.</p></div><button class="ghost-button" type="button" id="addBill">+ Add</button></div>
+            <div class="line-items" id="billList"></div>
+            <div class="total-line"><span>Total fixed bills</span><strong id="billSettingsTotal">$0 / month</strong></div>
+          </article>
+        </div>
+
+        <div class="grid two">
+          <article class="card">
+            <div class="card-head"><div><h2>Roth IRA guardrail</h2><p>Monitor the projected annual contribution from your 50% investment split.</p></div></div>
+            <label class="field"><span>Annual contribution cap <small>editable as rules change</small></span><div class="input-wrap prefix"><b>$</b><input id="iraCap" type="number" min="0" step="100" inputmode="decimal"></div></label>
+            <div class="stat-row">
+              <div class="mini-stat"><span>Projected Roth / year</span><strong id="rothAnnual">$0</strong></div>
+              <div class="mini-stat"><span>Room under cap</span><strong id="rothRoom">$0</strong></div>
+              <div class="mini-stat"><span>Brokerage / year</span><strong id="brokerageAnnual">$0</strong></div>
+            </div>
+            <div class="notice neutral" id="rothNotice"></div>
+            <p class="fine-print" style="margin:14px 0 0">The starting cap is the general 2026 IRA limit for someone under 50. Roth eligibility can be reduced by income and filing status, and the limit is shared across traditional and Roth IRAs. Verify the current IRS rules for your situation.</p>
+          </article>
+
+          <article class="card privacy-card">
+            <div class="card-head"><div><h2>Your data stays yours</h2><p>Account balances, CSV imports, goals, and plans stay in this browser. No analytics, bank login, or automatic uploads. External research links open only when you choose them.</p></div></div>
+            <div class="button-row">
+              <button class="ghost-button" id="exportData" type="button">Export backup</button>
+              <button class="ghost-button" id="importData" type="button">Import backup</button>
+              <button class="danger-button" id="clearData" type="button">Reset all data</button>
+              <input id="importFile" type="file" accept="application/json,.json" hidden>
+            </div>
+            <p class="fine-print" style="color:#b9c8c5;margin:16px 0 0">Browser storage and downloaded backups are not encrypted. Use a trusted device and keep backups private. Export before moving or replacing this HTML file: storage may not follow it to a new location.</p>
+          </article>
+        </div>
+        <article class="card" id="appInstallation">
+          <div class="card-head"><div><h2>Thirds on your phone</h2><p>Keep your planner on your home screen and use it offline.</p></div></div>
+          <p class="fine-print" id="appInstallStatus" role="status">Use your browser menu to install Thirds or add it to your home screen.</p>
+          <div class="button-row"><button class="primary-button" id="installApp" type="button" hidden>Install Thirds</button></div>
+          <p class="fine-print section-gap" id="appOfflineStatus" role="status">Preparing offline access on this device…</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <nav class="mobile-nav" aria-label="Mobile navigation">
+    <button class="nav-button active" data-view="plan"><b>⅓</b><span>Plan</span></button>
+    <button class="nav-button" data-view="activity"><b>↗</b><span>Activity</span></button>
+    <button class="nav-button" data-view="accounts"><b>◫</b><span>Accounts</span></button>
+    <button class="nav-button" data-view="settings"><b>⚙</b><span>Settings</span></button>
+  </nav>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const STORAGE_KEY = 'thirds-finance-v1';
+      const CATEGORIES = ['Groceries', 'Going out', 'Gas', 'Vehicle', 'Bills', 'Other'];
+      const CATEGORY_ICONS = { Groceries: '●', 'Going out': '✦', Gas: '◆', Vehicle: '▰', Bills: '▤', Other: '•' };
+      const defaults = {
+        income: { hourlyWage: 20, hoursWeek: 30, taxRate: 12, otherIncome: 0 },
+        diet: { calories: 3200, protein: 180, priceLevel: 1 },
+        vehicle: { payment: 0, insurance: 150, gas: 120, maintenance: 40, other: 15 },
+        iraCap: 7500,
+        bills: [
+          { id: 'phone', name: 'Phone', amount: 50 },
+          { id: 'subscriptions', name: 'Subscriptions', amount: 15 }
+        ],
+        transactions: [],
+        accounts: [], goals: [], lastImportBatch: '',
+        investing: { frequency: 26, payNet: '', horizon: 'unset', fractional: true, risk: false, otherHoldings: 0,
+          stocks: [
+            { id: 'example-msft', symbol: 'MSFT', name: 'Microsoft', target: 25, held: 0, price: 0, priceDate: '', approved: false },
+            { id: 'example-ko', symbol: 'KO', name: 'Coca-Cola', target: 25, held: 0, price: 0, priceDate: '', approved: false },
+            { id: 'example-jnj', symbol: 'JNJ', name: 'Johnson & Johnson', target: 25, held: 0, price: 0, priceDate: '', approved: false },
+            { id: 'example-v', symbol: 'V', name: 'Visa', target: 25, held: 0, price: 0, priceDate: '', approved: false }
+          ]
+        }
+      };
+
+      const clone = value => JSON.parse(JSON.stringify(value));
+      const safeNumber = (value, fallback = 0) => {
+        const number = Number(value);
+        return Number.isFinite(number) ? Math.max(0, number) : fallback;
+      };
+      const textValue = (v, max = 160) => String(v ?? '').slice(0, max);
+      const signedNumber = value => Number.isFinite(Number(value)) ? Math.max(-1e12, Math.min(1e12, Number(value))) : 0;
+      const bounded = (v, max = 1e12) => Math.min(max, safeNumber(v));
+      const ACCOUNT_TYPES = ['checking', 'savings', 'brokerage', 'roth', 'credit'];
+      const KINDS = ['expense', 'refund', 'transfer', 'income'];
+      const accountLabels = { checking: 'Checking', savings: 'Savings', brokerage: 'Brokerage', roth: 'Roth IRA', credit: 'Credit card' };
+      function mergeState(saved) {
+        const v = saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
+        const result = clone(defaults);
+        for (const section of ['income', 'diet', 'vehicle']) {
+          for (const key of Object.keys(defaults[section])) {
+            result[section][key] = v[section]?.[key] === undefined ? defaults[section][key] : bounded(v[section][key]);
+          }
+        }
+        result.iraCap = v.iraCap === undefined ? defaults.iraCap : bounded(v.iraCap);
+        result.bills = Array.isArray(v.bills) ? v.bills.slice(0, 200).map(b => ({id: textValue(b?.id || uid(), 100), name: textValue(b?.name, 32), amount: bounded(b?.amount)})) : result.bills;
+        result.accounts = (Array.isArray(v.accounts) ? v.accounts : []).slice(0, 100).map(a => ({
+          id: textValue(a?.id || uid(), 100), name: textValue(a?.name || 'Account', 45), type: ACCOUNT_TYPES.includes(a?.type) ? a.type : 'checking',
+          balance: signedNumber(a?.balance), date: validDate(a?.date) ? a.date : localISODate(),
+          rewardUnit: a?.rewardUnit === 'points' ? 'points' : 'cash', rewardBalance: bounded(a?.rewardBalance), cpp: bounded(a?.cpp ?? 1, 100),
+          rates: Object.fromEntries(['base', 'Groceries', 'Going out', 'Gas'].map(k => [k, bounded(a?.rates?.[k] ?? 1, 100)]))
+        }));
+        result.goals = (Array.isArray(v.goals) ? v.goals : []).slice(0, 100).map(g => ({
+          id: textValue(g?.id || uid(), 100), name: textValue(g?.name || 'Goal', 45), target: bounded(g?.target), saved: bounded(g?.saved), percent: bounded(g?.percent, 100),
+          accountId: result.accounts.some(a => a.id === g?.accountId && ['checking','savings'].includes(a.type)) ? g.accountId : '', date: validDate(g?.date) ? g.date : ''
+        }));
+        result.transactions = (Array.isArray(v.transactions) ? v.transactions : []).slice(0, 20000).filter(t => t && validDate(t.date) && bounded(t.amount) > 0).map(t => ({
+          id: textValue(t.id || uid(), 100), amount: bounded(t.amount), date: t.date, category: CATEGORIES.includes(t.category) ? t.category : 'Other',
+          note: textValue(t.note), createdAt: textValue(t.createdAt, 40), kind: KINDS.includes(t.kind) ? t.kind : 'expense',
+          accountId: textValue(t.accountId || '', 100), accountName: textValue(t.accountName || '', 45),
+          rewardEstimate: signedNumber(t.rewardEstimate), rewardUnits: signedNumber(t.rewardUnits),
+          externalId: textValue(t.externalId || '', 160), direction: t.direction === 'credit' || (!t.direction && ['refund','income'].includes(t.kind)) ? 'credit' : 'debit', batch: textValue(t.batch || '', 100)
+        }));
+        result.lastImportBatch = textValue(v.lastImportBatch || '', 100);
+        const inv = v.investing || {};
+        result.investing = {
+          frequency: [12,24,26,52].includes(Number(inv.frequency)) ? Number(inv.frequency) : 26,
+          payNet: inv.payNet === '' || inv.payNet === undefined ? '' : bounded(inv.payNet), horizon: ['short','long'].includes(inv.horizon) ? inv.horizon : 'unset',
+          fractional: inv.fractional === undefined ? true : inv.fractional === true, risk: inv.risk === true, otherHoldings: bounded(inv.otherHoldings),
+          stocks: (Array.isArray(inv.stocks) ? inv.stocks : defaults.investing.stocks).slice(0, 50).map(st => ({
+            id: textValue(st?.id || uid(), 100), symbol: textValue(st?.symbol, 10).toUpperCase().replace(/[^A-Z0-9.\-]/g, ''), name: textValue(st?.name, 60),
+            target: bounded(st?.target, 100), held: bounded(st?.held), price: bounded(st?.price), priceDate: validDate(st?.priceDate) ? st.priceDate : '', approved: st?.approved === true
+          }))
+        };
+        return result;
+      }
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          return mergeState(raw ? JSON.parse(raw) : null);
+        } catch (error) {
+          return mergeState(null);
+        }
+      }
+
+      let state = loadState();
+
+      function persist() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          setText('saveStatus', 'Local-only data'); byId('saveStatus').style.color = '';
+          return true;
+        } catch (error) {
+          setText('saveStatus', 'Not saved · export a backup'); byId('saveStatus').style.color = 'var(--danger)';
+          return false;
+        }
+      }
+
+      const money = value => new Intl.NumberFormat('en-US', {
+        style: 'currency', currency: 'USD', maximumFractionDigits: value < 100 ? 2 : 0
+      }).format(Number.isFinite(value) ? value : 0);
+      const wholeMoney = value => new Intl.NumberFormat('en-US', {
+        style: 'currency', currency: 'USD', maximumFractionDigits: 0
+      }).format(Number.isFinite(value) ? value : 0);
+      const byId = id => document.getElementById(id);
+      const setText = (id, value) => { const node = byId(id); if (node) node.textContent = value; };
+      const escapeHtml = value => String(value).replace(/[&<>'"]/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+      })[char]);
+
+      function uid() {
+        if (window.crypto && typeof window.crypto.randomUUID === 'function') return window.crypto.randomUUID();
+        return 'id-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2);
+      }
+
+      function localISODate(date = new Date()) {
+        const offset = date.getTimezoneOffset() * 60000;
+        return new Date(date.getTime() - offset).toISOString().slice(0, 10);
+      }
+
+      function calculations() {
+        const wage = safeNumber(state.income.hourlyWage);
+        const hours = Math.min(168, safeNumber(state.income.hoursWeek));
+        const taxRate = Math.min(60, safeNumber(state.income.taxRate));
+        const other = safeNumber(state.income.otherIncome);
+        const gross = wage * hours * 52 / 12 + other;
+        const taxes = gross * taxRate / 100;
+        const net = Math.max(0, gross - taxes);
+        const savings = net / 3;
+        const investments = net / 3;
+        const brokerage = investments / 2;
+        const roth = investments / 2;
+        const spendPool = net / 3;
+        const bills = state.bills.reduce((sum, bill) => sum + safeNumber(bill.amount), 0);
+        const vehicle = Object.values(state.vehicle).reduce((sum, amount) => sum + safeNumber(amount), 0);
+        const calories = Math.max(2000, safeNumber(state.diet.calories, 3200));
+        const protein = Math.max(80, safeNumber(state.diet.protein, 180));
+        const price = Math.max(.5, safeNumber(state.diet.priceLevel, 1));
+        const stapleCalories = calories * 7 / 1000 * 2.5;
+        const proteinPremium = Math.max(0, protein - 100) / 50 * .7 * 7;
+        const groceryRaw = (stapleCalories + proteinPremium) * price;
+        const groceryWeekly = Math.max(5, Math.ceil(groceryRaw / 5) * 5);
+        const groceryMonthly = groceryWeekly * 52 / 12;
+        const committed = bills + vehicle + groceryMonthly;
+        const goingOut = Math.max(0, spendPool - committed);
+        const shortfall = Math.max(0, committed - spendPool);
+        return { gross, taxes, net, savings, investments, brokerage, roth, spendPool, bills, vehicle, calories, protein, groceryWeekly, groceryMonthly, committed, goingOut, shortfall };
+      }
+
+      function setStateFromInput(input, target, key) {
+        const section = target === state.income ? 'income' : target === state.diet ? 'diet' : 'vehicle';
+        input.addEventListener('input', () => {
+          state[section][key] = safeNumber(input.value);
+          persist();
+          renderComputed();
+        });
+      }
+
+      function bindStaticInputs() {
+        const mappings = [
+          ['hourlyWage', state.income, 'hourlyWage'], ['hoursWeek', state.income, 'hoursWeek'],
+          ['taxRate', state.income, 'taxRate'], ['otherIncome', state.income, 'otherIncome'],
+          ['calories', state.diet, 'calories'], ['protein', state.diet, 'protein'],
+          ['priceLevel', state.diet, 'priceLevel'], ['carPayment', state.vehicle, 'payment'],
+          ['carInsurance', state.vehicle, 'insurance'], ['carGas', state.vehicle, 'gas'],
+          ['carMaintenance', state.vehicle, 'maintenance'], ['carOther', state.vehicle, 'other']
+        ];
+        mappings.forEach(([id, target, key]) => {
+          const input = byId(id);
+          input.value = target[key];
+          setStateFromInput(input, target, key);
+        });
+        const iraCap = byId('iraCap');
+        iraCap.value = state.iraCap;
+        iraCap.addEventListener('input', () => {
+          state.iraCap = safeNumber(iraCap.value);
+          persist();
+          renderComputed();
+        });
+      }
+
+      function refreshStaticInputValues() {
+        const values = {
+          hourlyWage: state.income.hourlyWage, hoursWeek: state.income.hoursWeek,
+          taxRate: state.income.taxRate, otherIncome: state.income.otherIncome,
+          calories: state.diet.calories, protein: state.diet.protein, priceLevel: state.diet.priceLevel,
+          carPayment: state.vehicle.payment, carInsurance: state.vehicle.insurance,
+          carGas: state.vehicle.gas, carMaintenance: state.vehicle.maintenance, carOther: state.vehicle.other,
+          iraCap: state.iraCap
+        };
+        Object.entries(values).forEach(([id, value]) => { if (byId(id)) byId(id).value = value; });
+      }
+
+      function renderComputed() {
+        const c = calculations();
+        const date = new Date();
+        setText('monthLabel', date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' }) + ' plan');
+        setText('heroNet', wholeMoney(c.net));
+        setText('heroAnnual', wholeMoney(c.net * 12) + ' per year after estimated tax');
+        setText('grossMonth', wholeMoney(c.gross));
+        setText('taxMonth', wholeMoney(c.taxes));
+        setText('netWeek', money(c.net * 12 / 52));
+        setText('saveAmount', wholeMoney(c.savings));
+        setText('brokerageAmount', wholeMoney(c.brokerage));
+        setText('rothAmount', wholeMoney(c.roth));
+        setText('spendAmount', wholeMoney(c.spendPool));
+        setText('donutTotal', wholeMoney(c.spendPool));
+        setText('billsAmount', wholeMoney(c.bills));
+        setText('vehicleAmount', wholeMoney(c.vehicle));
+        setText('groceryMonthAmount', wholeMoney(c.groceryMonthly));
+        setText('goingOutAmount', wholeMoney(c.goingOut));
+        setText('goingOutWeekly', money(c.goingOut * 12 / 52) + ' / week');
+        setText('calorieReadout', c.calories.toLocaleString() + ' kcal');
+        setText('proteinReadout', c.protein.toLocaleString() + ' g');
+        setText('groceryWeekAmount', wholeMoney(c.groceryWeekly));
+        setText('groceryDailyAmount', money(c.groceryWeekly / 7) + ' per day · 7 days');
+        setText('groceryMonthlyMini', wholeMoney(c.groceryMonthly));
+        setText('groceryRoom', wholeMoney(c.spendPool - c.bills - c.vehicle - c.groceryMonthly));
+        setText('vehicleSettingsTotal', wholeMoney(c.vehicle) + ' / month');
+        setText('billSettingsTotal', wholeMoney(c.bills) + ' / month');
+        setText('rothAnnual', wholeMoney(c.roth * 12));
+        setText('brokerageAnnual', wholeMoney(c.brokerage * 12));
+
+        const cap = safeNumber(state.iraCap);
+        const rothRoom = cap - c.roth * 12;
+        setText('rothRoom', cap ? wholeMoney(rothRoom) : 'Not set');
+        const rothNotice = byId('rothNotice');
+        if (!cap) {
+          rothNotice.className = 'notice neutral';
+          rothNotice.textContent = 'Add a contribution cap to monitor your projected Roth deposits.';
+        } else if (rothRoom < 0) {
+          rothNotice.className = 'notice bad';
+          rothNotice.innerHTML = '<strong>Projected over cap by ' + wholeMoney(Math.abs(rothRoom)) + '.</strong> Redirect the excess to brokerage or another eligible account after confirming your limit.';
+        } else {
+          rothNotice.className = 'notice ok';
+          rothNotice.innerHTML = '<strong>' + wholeMoney(rothRoom) + ' of annual room remains</strong> at this income estimate.';
+        }
+
+        const notice = byId('planNotice');
+        if (c.net <= 0) {
+          notice.className = 'notice neutral';
+          notice.innerHTML = '<strong>Add your wage and hours</strong> to calculate a personal spending plan.';
+        } else if (c.shortfall > 0) {
+          const requiredNet = c.committed * 3;
+          notice.className = 'notice bad';
+          notice.innerHTML = '<strong>Short by ' + wholeMoney(c.shortfall) + ' per month.</strong> To keep both hard thirds untouched, reduce spending commitments or raise take-home to about ' + wholeMoney(requiredNet) + ' per month.';
+        } else {
+          notice.className = 'notice ok';
+          notice.innerHTML = '<strong>' + wholeMoney(c.goingOut) + ' per month is safe for going out</strong> after bills, vehicle costs, and the grocery target—about ' + money(c.goingOut * 12 / 52) + ' each week.';
+        }
+
+        updateDonut(c);
+        renderFoodAllocation(c.groceryWeekly);
+        renderActivity();
+        renderAccounts();
+        renderGoals();
+        renderRewards();
+        renderInvestPlan();
+      }
+
+      function updateDonut(c) {
+        const pool = Math.max(c.spendPool, 1);
+        const values = [c.bills, c.vehicle, c.groceryMonthly, c.goingOut];
+        const colors = ['var(--lavender)', 'var(--coral)', 'var(--aqua)', 'var(--gold)'];
+        let used = 0;
+        const stops = [];
+        values.forEach((value, index) => {
+          const start = Math.min(100, used / pool * 100);
+          used += value;
+          const end = Math.min(100, used / pool * 100);
+          if (end > start) stops.push(colors[index] + ' ' + start + '% ' + end + '%');
+        });
+        if (used < pool) stops.push('#e9e5dc ' + (used / pool * 100) + '% 100%');
+        if (!stops.length) stops.push('#e9e5dc 0 100%');
+        byId('spendDonut').style.background = 'conic-gradient(' + stops.join(',') + ')';
+      }
+
+      function renderFoodAllocation(weekly) {
+        const splits = [
+          ['Protein staples', .36], ['Carbs & grains', .25], ['Produce', .18],
+          ['Dairy & fats', .16], ['Flavor / flex', .05]
+        ];
+        byId('foodAllocation').innerHTML = splits.map(([label, ratio]) =>
+          '<div class="food-line"><span>' + label + '</span><div class="track"><i style="width:' + (ratio * 100) + '%"></i></div><strong>' + wholeMoney(weekly * ratio) + '</strong></div>'
+        ).join('');
+      }
+
+      function renderBills() {
+        const list = byId('billList');
+        if (!state.bills.length) {
+          list.innerHTML = '<div class="empty"><div class="empty-icon">＋</div>No other recurring bills added.</div>';
+        } else {
+          list.innerHTML = state.bills.map(bill =>
+            '<div class="line-item" data-id="' + escapeHtml(bill.id) + '">' +
+              '<input class="bill-name" type="text" maxlength="32" aria-label="Bill name" value="' + escapeHtml(bill.name) + '">' +
+              '<div class="input-wrap prefix"><b>$</b><input class="bill-amount" type="number" min="0" step="1" inputmode="decimal" aria-label="Monthly bill amount" value="' + safeNumber(bill.amount) + '"></div>' +
+              '<button class="icon-button remove-bill" type="button" aria-label="Remove ' + escapeHtml(bill.name) + '">×</button>' +
+            '</div>'
+          ).join('');
+        }
+        renderComputed();
+      }
+
+      function currentMonthKey() { return byId('activityMonth').value || localISODate().slice(0, 7); }
+
+      function renderActivity() {
+        const c = calculations();
+        const current = state.transactions
+          .filter(tx => typeof tx.date === 'string' && tx.date.startsWith(currentMonthKey()))
+          .sort((a, b) => b.date.localeCompare(a.date) || String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
+        const totals = Object.fromEntries(CATEGORIES.map(category => [category, 0]));
+        current.forEach(tx => { totals[tx.category] = (totals[tx.category] || 0) + spendingValue(tx); });
+        const total = Object.values(totals).reduce((sum, amount) => sum + amount, 0);
+        const remaining = c.spendPool - total;
+        const top = Object.entries(totals).sort((a, b) => b[1] - a[1])[0];
+        setText('actualSpent', wholeMoney(total));
+        setText('actualRemaining', wholeMoney(remaining));
+        byId('actualRemaining').style.color = remaining < 0 ? 'var(--danger)' : 'var(--ink)';
+        setText('actualRemainingSub', remaining < 0 ? 'Over the current plan spending third' : 'Vs. current plan; unlogged purchases excluded');
+        setText('topCategory', top && top[1] > 0 ? top[0] : '—');
+        setText('topCategoryAmount', top && top[1] > 0 ? wholeMoney(top[1]) + ' in selected month' : 'No spending yet');
+        setText('transactionCount', current.length + (current.length === 1 ? ' entry' : ' entries') + ' in selected month');
+
+        const max = Math.max(...Object.values(totals).map(Math.abs), 1);
+        const nonzero = Object.entries(totals).filter(([, amount]) => amount !== 0);
+        byId('categoryChart').innerHTML = nonzero.length ? nonzero.map(([category, amount]) =>
+          '<div class="chart-row"><span>' + escapeHtml(category) + '</span><div class="bar-track"><i style="width:' + (Math.abs(amount) / max * 100) + '%"></i></div><strong>' + wholeMoney(amount) + '</strong></div>'
+        ).join('') : '<div class="empty"><div class="empty-icon">↗</div>No purchases or refunds in this month.</div>';
+
+        byId('transactionList').innerHTML = current.length ? current.map(tx => {
+          const readableDate = new Date(tx.date + 'T12:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+          const note = tx.note ? escapeHtml(tx.note) : escapeHtml(tx.category);
+          return '<div class="transaction" data-id="' + escapeHtml(tx.id) + '">' +
+            '<div class="tx-icon" aria-hidden="true">' + (CATEGORY_ICONS[tx.category] || '•') + '</div>' +
+            '<div class="tx-copy"><strong>' + note + '</strong><small>' + escapeHtml(tx.category) + ' · ' + readableDate + ' · ' + escapeHtml(kindLabel(tx.kind)) + (tx.accountName ? ' · ' + escapeHtml(tx.accountName) : '') + '</small></div>' +
+            '<div class="tx-amount">' + (tx.kind === 'refund' || tx.kind === 'income' ? '+' : tx.kind === 'transfer' ? '↔ ' : '−') + money(safeNumber(tx.amount)) + '</div>' +
+            '<button class="icon-button delete-tx" type="button" aria-label="Delete purchase">×</button>' +
+          '</div>';
+        }).join('') : '<div class="empty"><div class="empty-icon">◇</div>No activity logged for this month.</div>';
+      }
+
+      function validDate(value) {
+        if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+        const d = new Date(value + 'T12:00:00Z');
+        return Number.isFinite(d.getTime()) && d.toISOString().slice(0, 10) === value;
+      }
+      function spendingValue(tx) { return tx.kind === 'refund' ? -safeNumber(tx.amount) : (!tx.kind || tx.kind === 'expense') ? safeNumber(tx.amount) : 0; }
+      function kindLabel(kind) { return ({ expense: 'Purchase', refund: 'Refund', transfer: 'Transfer / payment', income: 'Income' })[kind] || 'Purchase'; }
+      const cents = value => Math.round(value * 100);
+      const exactMoney = value => new Intl.NumberFormat('en-US', {style:'currency', currency:'USD'}).format(value);
+      function fieldMessage(id, message, good = false) { const n = byId(id); n.hidden = !message; n.textContent = message; n.className = 'notice ' + (good ? 'ok' : 'bad'); }
+      function downloadFile(name, content, type = 'text/csv;charset=utf-8') {
+        const url = URL.createObjectURL(new Blob([content], {type}));
+        const link = document.createElement('a'); link.href = url; link.download = name; document.body.appendChild(link); link.click(); link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
+      function csvText(rows) {
+        return '\uFEFF' + rows.map(row => row.map(value => {
+          let v = String(value ?? '');
+          if (typeof value !== 'number' && /^[\s\u0000-\u001f]*[=+@\-]/.test(v)) v = "'" + v;
+          return '"' + v.replace(/"/g, '""') + '"';
+        }).join(',')).join('\r\n');
+      }
+      function accountTransactionFields(id, amount, category, kind) {
+        const account = state.accounts.find(a => a.id === id);
+        const reward = account && account.type === 'credit' && ['expense','refund'].includes(kind) ? estimateReward(account, amount, category) : {dollars: 0, units: 0};
+        const sign = kind === 'refund' ? -1 : 1;
+        return { accountId: account?.id || '', accountName: account?.name || '', rewardEstimate: sign * reward.dollars, rewardUnits: sign * reward.units,
+          direction: ['income','refund'].includes(kind) ? 'credit' : 'debit' };
+      }
+      function estimateReward(account, amount, category) {
+        const rate = safeNumber(account.rates[category] ?? account.rates.base);
+        const units = amount * rate / (account.rewardUnit === 'cash' ? 100 : 1);
+        return {units, dollars: account.rewardUnit === 'cash' ? units : units * account.cpp / 100};
+      }
+      function setOptions(id, accounts, firstLabel, firstValue = '') {
+        const node = byId(id), old = node.value;
+        node.innerHTML = '<option value="' + escapeHtml(firstValue) + '">' + escapeHtml(firstLabel) + '</option>' + accounts.map(a => '<option value="' + escapeHtml(a.id) + '">' + escapeHtml(a.name) + '</option>').join('');
+        if ([...node.options].some(o => o.value === old)) node.value = old;
+      }
+      function refreshAccountOptions() {
+        setOptions('txAccount', state.accounts, 'No account / cash');
+        setOptions('csvAccount', state.accounts, 'Choose an account');
+        setOptions('goalAccount', state.accounts.filter(a => ['checking','savings'].includes(a.type)), 'Tracked separately');
+      }
+      function renderAccounts() {
+        const assets = state.accounts.filter(a => a.type !== 'credit').reduce((sum,a) => sum + a.balance, 0);
+        const debt = state.accounts.filter(a => a.type === 'credit').reduce((sum,a) => sum + a.balance, 0);
+        setText('accountAssets', exactMoney(assets)); setText('accountDebt', exactMoney(debt)); setText('accountNet', exactMoney(assets-debt));
+        byId('accountList').innerHTML = state.accounts.length ? state.accounts.map(a => '<div class="item-card"><div class="item-head"><div><h3>' + escapeHtml(a.name) + '</h3><span class="badge">' + accountLabels[a.type] + '</span></div><div class="item-actions"><button class="icon-button" type="button" data-edit-account="' + escapeHtml(a.id) + '">Edit</button><button class="icon-button" type="button" data-delete-account="' + escapeHtml(a.id) + '" aria-label="Remove ' + escapeHtml(a.name) + '">×</button></div></div><div class="value">' + exactMoney(a.balance) + '</div><div class="muted">' + (a.type === 'credit' ? (a.balance < 0 ? 'Credit balance' : 'Amount owed') : 'Balance') + ' · as of ' + escapeHtml(a.date) + '</div></div>').join('') : '<div class="empty">Add your checking, savings, investment accounts, or credit cards to get started.</div>';
+      }
+      function resetAccountForm() {
+        byId('accountForm').reset(); byId('accountId').value = ''; byId('accountDate').value = localISODate(); byId('cardFields').hidden = true;
+        byId('cancelAccount').hidden = true; setText('accountFormTitle','Add an account or card'); setText('balanceLabel','Current balance ($)'); fieldMessage('accountMessage','');
+      }
+      function editAccount(id) {
+        const a = state.accounts.find(a => a.id === id); if (!a) return;
+        const values = { accountId: a.id, accountName: a.name, accountType: a.type, accountBalance: a.balance, accountDate: a.date, rewardUnit: a.rewardUnit,
+          rewardBalance: a.rewardBalance, rewardCPP: a.cpp, rateBase: a.rates.base, rateGroceries: a.rates.Groceries, rateDining: a.rates['Going out'], rateGas: a.rates.Gas };
+        for (const [key, val] of Object.entries(values)) byId(key).value = val;
+        byId('cardFields').hidden = a.type !== 'credit'; byId('cancelAccount').hidden = false; setText('accountFormTitle','Edit account');
+        setText('balanceLabel', a.type === 'credit' ? 'Amount owed ($) · negative = credit' : 'Current balance ($)'); byId('accountName').focus();
+      }
+      function saveAccount(event) {
+        event.preventDefault(); const id = byId('accountId').value || uid(), type = byId('accountType').value;
+        if (!byId('accountName').value.trim() || !validDate(byId('accountDate').value)) return fieldMessage('accountMessage','Enter a nickname and a valid balance date.');
+        if (byId('accountDate').value > localISODate()) return fieldMessage('accountMessage','A balance snapshot cannot be dated in the future.');
+        if (state.goals.some(g => g.accountId === id) && !['checking','savings'].includes(type)) return fieldMessage('accountMessage','Unlink this account from its savings goals before changing it to this type.');
+        const account = { id, type, name: byId('accountName').value.trim(), balance: signedNumber(byId('accountBalance').value), date: byId('accountDate').value,
+          rewardUnit: byId('rewardUnit').value, rewardBalance: bounded(byId('rewardBalance').value), cpp: bounded(byId('rewardCPP').value, 100),
+          rates: {base: bounded(byId('rateBase').value,100), Groceries: bounded(byId('rateGroceries').value,100), 'Going out': bounded(byId('rateDining').value,100), Gas: bounded(byId('rateGas').value,100)} };
+        const index = state.accounts.findIndex(a => a.id === id);
+        if (index >= 0) state.accounts[index] = account; else if (state.accounts.length < 100) state.accounts.push(account); else return fieldMessage('accountMessage','You can track up to 100 accounts.');
+        persist(); resetAccountForm(); refreshAccountOptions(); renderComputed(); showToast('Account snapshot saved');
+      }
+      function renderRewards() {
+        const cards = state.accounts.filter(a => a.type === 'credit');
+        const month = localISODate().slice(0,7);
+        const earned = id => state.transactions.filter(t => t.accountId === id && t.date.startsWith(month)).reduce((sum,t) => sum + (t.rewardEstimate || 0), 0);
+        const balance = a => a.rewardUnit === 'cash' ? a.rewardBalance : a.rewardBalance * a.cpp / 100;
+        setText('rewardTotal', exactMoney(cards.reduce((sum,a) => sum + balance(a), 0)));
+        setText('rewardsEarned',exactMoney(cards.reduce((sum,a) => sum + earned(a.id), 0))); setText('rewardCardCount',cards.length);
+        byId('rewardsList').innerHTML = cards.length ? cards.map(a => '<div class="compact-result"><strong>' + escapeHtml(a.name) + ' · ' + exactMoney(balance(a)) + '</strong><span class="muted">' + (a.rewardUnit === 'points' ? a.rewardBalance.toLocaleString() + ' points / miles at ' + a.cpp + '¢ each' : 'Cash back balance') + ' · est. earned this month: ' + exactMoney(earned(a.id)) + '</span></div>').join('') : '<div class="empty">Add a credit card and enter its rewards terms.</div>';
+        const amount = bounded(byId('bestAmount').value), category = byId('bestCategory').value;
+        const ranked = cards.map(a => ({a,...estimateReward(a,amount,category)})).sort((a,b) => b.dollars-a.dollars);
+        byId('bestCardResult').innerHTML = ranked.length ? ranked.map((r,i) => '<div class="compact-result section-gap"><strong>' + (i === 0 && r.dollars > 0 ? 'Highest estimated value: ' : '') + escapeHtml(r.a.name) + '</strong><span class="muted">' + exactMoney(r.dollars) + ' estimated on ' + exactMoney(amount) + (r.a.rewardUnit === 'points' ? ' · ' + r.units.toFixed(1) + ' points / miles' : '') + '</span></div>').join('') : '<div class="empty">Add cards to compare their rewards.</div>';
+      }
+      function resetGoalForm() {
+        byId('goalForm').reset(); byId('goalId').value = ''; byId('cancelGoal').hidden = true; setText('goalFormTitle','Add a goal'); fieldMessage('goalMessage','');
+      }
+      function goalFundingWarnings() {
+        return state.accounts.filter(a => ['checking','savings'].includes(a.type)).map(a => {
+          const reserved = state.goals.filter(g => g.accountId === a.id).reduce((sum,g) => sum+g.saved,0);
+          return reserved > Math.max(0,a.balance) + .005 ? a.name + ' has ' + exactMoney(reserved) + ' earmarked against a ' + exactMoney(a.balance) + ' balance.' : '';
+        }).filter(Boolean);
+      }
+      function renderGoals() {
+        const c = calculations(), allocated = state.goals.reduce((sum,g) => sum+g.percent,0), warnings = goalFundingWarnings();
+        setText('goalPool', wholeMoney(c.savings) + ' / month savings');
+        if (allocated > 100.001) warnings.push('Goal allocations total ' + allocated.toFixed(1) + '%. Reduce them to 100% or less.');
+        else warnings.push((100-allocated).toFixed(1) + '% of your savings third is unassigned (' + exactMoney(c.savings * Math.max(0,100-allocated)/100) + ' / month).');
+        const notice = byId('goalAllocationNotice'); notice.hidden = false; notice.className = 'notice ' + (allocated > 100.001 || goalFundingWarnings().length ? 'bad' : 'neutral'); notice.textContent = warnings.join(' ');
+        byId('goalList').innerHTML = state.goals.length ? state.goals.map(g => {
+          const remaining = Math.max(0,g.target-g.saved), monthly = c.savings*g.percent/100, progress = g.target > 0 ? Math.min(100,g.saved/g.target*100) : 0;
+          const account = state.accounts.find(a => a.id === g.accountId);
+          let forecast = remaining === 0 ? 'Goal reached.' : monthly <= 0 ? 'Assign monthly savings to estimate a finish date.' : '';
+          const months = monthly > 0 ? Math.ceil(remaining/monthly) : 0;
+          if (!forecast && months > 1200) forecast = 'More than 100 years at this savings rate.';
+          if (!forecast) {
+            const finish = new Date(); finish.setDate(1); finish.setMonth(finish.getMonth()+months);
+            forecast = 'Projected finish: ' + finish.toLocaleDateString(undefined,{month:'short',year:'numeric'}) + ' (' + months + ' months).';
+          }
+          let deadline = '';
+          if (g.date && remaining > 0) {
+            const days = (new Date(g.date+'T12:00:00') - new Date(localISODate()+'T12:00:00'))/86400000;
+            const required = days > 0 ? remaining / (days/(365.25/12)) : Infinity;
+            deadline = ' Target: ' + g.date + '. ' + (days <= 0 ? 'Target date has arrived or passed.' : 'About ' + exactMoney(required) + '/month needed' + (monthly+.01 >= required ? ' · on track.' : ' · increase savings or extend the date.'));
+          }
+          return '<div class="item-card"><div class="item-head"><div><h3>' + escapeHtml(g.name) + '</h3><span class="muted">' + (account ? 'Earmarked in ' + escapeHtml(account.name) : 'Tracked separately') + '</span></div><div class="item-actions"><button class="icon-button" data-edit-goal="' + escapeHtml(g.id) + '" type="button">Edit</button><button class="icon-button" data-delete-goal="' + escapeHtml(g.id) + '" type="button" aria-label="Remove goal">×</button></div></div><div class="value">' + wholeMoney(g.saved) + ' <small class="muted">of ' + wholeMoney(g.target) + '</small></div><div class="track" role="progressbar" aria-label="' + escapeHtml(g.name) + ' progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + progress.toFixed(1) + '"><i style="width:' + progress + '%"></i></div><div class="muted">' + progress.toFixed(1) + '% saved · ' + exactMoney(remaining) + ' left<br>' + exactMoney(monthly) + '/month · ' + g.percent + '% of savings<br>' + escapeHtml(forecast+deadline) + '</div></div>';
+        }).join('') : '<div class="empty full-width">Add a goal like a new car, emergency fund, or trip, then enter what you have saved so far.</div>';
+      }
+      function saveGoal(event) {
+        event.preventDefault(); const id = byId('goalId').value || uid();
+        const goal = {id, name: byId('goalName').value.trim(), target: bounded(byId('goalTarget').value), saved: bounded(byId('goalSaved').value),
+          percent: bounded(byId('goalPercent').value,100), date: byId('goalDate').value, accountId: byId('goalAccount').value};
+        if (!goal.name || !goal.target || (goal.date && !validDate(goal.date))) return fieldMessage('goalMessage','Enter a name, positive target, and valid date.');
+        if (state.goals.filter(g => g.id !== id).reduce((sum,g) => sum+g.percent,0)+goal.percent > 100.001) return fieldMessage('goalMessage','All goals together can use at most 100% of the savings third.');
+        const account = state.accounts.find(a => a.id === goal.accountId);
+        const earmarked = state.goals.filter(g => g.id !== id && g.accountId === goal.accountId).reduce((sum,g) => sum+g.saved,0)+goal.saved;
+        if (account && earmarked > Math.max(0,account.balance)+.005) return fieldMessage('goalMessage','This would earmark ' + exactMoney(earmarked) + ' in ' + account.name + ', more than its ' + exactMoney(account.balance) + ' balance. Update the balance or saved amounts.');
+        const index = state.goals.findIndex(g => g.id === id);
+        if (index >= 0) state.goals[index] = goal; else if (state.goals.length < 100) state.goals.push(goal); else return fieldMessage('goalMessage','You can track up to 100 goals.');
+        persist(); resetGoalForm(); renderGoals(); showToast('Goal saved');
+      }
+      function editGoal(id) {
+        const g = state.goals.find(g => g.id === id); if (!g) return;
+        const values = { goalId:g.id,goalName:g.name,goalTarget:g.target,goalSaved:g.saved,goalAccount:g.accountId,goalPercent:g.percent,goalDate:g.date };
+        for (const [key,value] of Object.entries(values)) byId(key).value = value;
+        byId('goalEditor').open = true; byId('cancelGoal').hidden = false; setText('goalFormTitle','Edit goal'); byId('goalName').focus();
+      }
+      function refreshInvestInputs() {
+        const i = state.investing;
+        byId('payFrequency').value = i.frequency; byId('payNet').value = i.payNet; byId('investHorizon').value = i.horizon;
+        byId('otherHoldings').value = i.otherHoldings; byId('fractionalShares').checked = i.fractional; byId('investRisk').checked = i.risk;
+      }
+      function renderStocks() {
+        byId('stockList').innerHTML = state.investing.stocks.length ? state.investing.stocks.map(s => '<div class="item-card" data-stock="' + escapeHtml(s.id) + '"><div class="item-head"><div><strong class="symbol">' + escapeHtml(s.symbol || 'NEW') + '</strong><p class="muted" style="margin:4px 0 0">' + escapeHtml(s.name) + '</p></div><button class="icon-button" type="button" data-remove-stock="' + escapeHtml(s.id) + '" aria-label="Remove stock">×</button></div><div class="stock-inputs">' +
+          '<label class="field"><span>Ticker</span><input data-stock-key="symbol" maxlength="10" value="' + escapeHtml(s.symbol) + '"></label>' +
+          '<label class="field"><span>Target (%)</span><input data-stock-key="target" type="number" min="0" max="100" step="0.1" value="' + s.target + '"></label>' +
+          '<label class="field"><span>Holding value ($)</span><input data-stock-key="held" type="number" min="0" step="0.01" value="' + s.held + '"></label>' +
+          '<label class="field"><span>Quote ($) · optional</span><input data-stock-key="price" type="number" min="0" step="0.0001" value="' + s.price + '"></label>' +
+          '<label class="field"><span>Quote date</span><input data-stock-key="priceDate" type="date" value="' + escapeHtml(s.priceDate) + '"></label>' +
+          '<label class="field"><span>Company name</span><input data-stock-key="name" maxlength="60" value="' + escapeHtml(s.name) + '"></label></div>' +
+          '<label class="check-label section-gap"><input type="checkbox" data-stock-key="approved"' + (s.approved ? ' checked' : '') + '><span>Researched and approved for my long-term brokerage plan</span></label><div class="source-links"><a class="stock-research" href="https://www.sec.gov/edgar/search/#/q=' + encodeURIComponent(s.symbol) + '" target="_blank" rel="noopener noreferrer">Company filings ↗</a><a class="stock-quote" href="https://finance.yahoo.com/quote/' + encodeURIComponent(s.symbol) + '/" target="_blank" rel="noopener noreferrer">Check quote &amp; valuation ↗</a></div></div>').join('') : '<div class="empty full-width">Add companies you want to research.</div>';
+      }
+      function paycheck() {
+        const i = state.investing, pay = i.payNet === '' ? calculations().net*12/i.frequency : safeNumber(i.payNet);
+        const total = cents(pay), savings = Math.floor(total/3), investments = Math.floor(total/3), roth = Math.floor(investments/2), brokerage = investments-roth;
+        return {total:total/100,savings:savings/100,roth:roth/100,brokerage:brokerage/100,spending:(total-savings-investments)/100};
+      }
+      function investmentPlan() {
+        const i = state.investing, p = paycheck(), issues = [];
+        if (i.horizon !== 'long') issues.push(i.horizon === 'short' ? 'This money is needed in less than 5 years. Keep it out of this individual-stock worksheet and review cash or lower-risk choices for that goal.' : 'Choose a time horizon before generating stock allocations.');
+        if (!i.risk) issues.push('Complete the research acknowledgement before generating a plan.');
+        const targetTotal = i.stocks.reduce((sum,s) => sum+s.target,0), symbols = i.stocks.map(s => s.symbol);
+        if (targetTotal > 100.001) issues.push('Watchlist targets total ' + targetTotal.toFixed(1) + '%. Reduce them to 100% or less.');
+        if (new Set(symbols).size !== symbols.length) issues.push('Use each ticker only once so holdings and targets are not counted twice.');
+        if (!i.stocks.some(s => s.approved && s.target > 0 && s.symbol)) issues.push('Research at least one company, then approve it and give it a target above 0%.');
+        if (p.brokerage <= 0) issues.push('Enter a positive paycheck or income estimate.');
+        if (issues.length) return {p,issues,rows:[],unallocated:p.brokerage,targetTotal};
+        const totalHeld = i.otherHoldings+i.stocks.reduce((sum,s) => sum+s.held,0);
+        const rows = i.stocks.filter(s => s.approved && s.target > 0 && s.symbol).map(s => ({s, gap: Math.max(0,(totalHeld+p.brokerage)*s.target/100-s.held)})).filter(r => r.gap > .005).sort((a,b) => b.gap-a.gap);
+        const gaps = rows.reduce((sum,r) => sum+r.gap,0), deploy = Math.min(p.brokerage,gaps);
+        for (const r of rows) {
+          const nominal = gaps ? deploy*r.gap/gaps : 0;
+          r.quoteValid = r.s.price > 0 && validDate(r.s.priceDate) && r.s.priceDate <= localISODate();
+          r.quoteOld = r.quoteValid && (new Date(localISODate()+'T12:00:00Z')-new Date(r.s.priceDate+'T12:00:00Z'))/86400000 > 7;
+          if (i.fractional) { r.dollars = Math.floor((nominal+1e-8)*100)/100; r.shares = r.quoteValid ? r.dollars/r.s.price : null; }
+          else { r.shares = r.quoteValid && !r.quoteOld ? Math.floor((nominal+1e-8)/r.s.price) : 0; r.dollars = Math.floor((r.shares*r.s.price+1e-8)*100)/100; }
+        }
+        return {p,issues,rows,unallocated:Math.max(0,p.brokerage-rows.reduce((sum,r) => sum+r.dollars,0)),targetTotal};
+      }
+      function renderInvestPlan() {
+        const plan = investmentPlan(), p = plan.p;
+        for (const [id,key] of [['paySavings','savings'],['payRoth','roth'],['payBrokerage','brokerage'],['paySpending','spending']]) setText(id,exactMoney(p[key]));
+        setText('payEstimateLabel', (state.investing.payNet === '' ? 'Estimated' : 'Entered') + ' take-home: ' + exactMoney(p.total) + '. Rounding stays within this paycheck. This worksheet does not record income or move money.');
+        const notices = plan.issues.map(message => '<div class="notice neutral" style="margin-top:0">' + escapeHtml(message) + '</div>').join('');
+        const rows = plan.rows.map(r => '<div class="compact-result"><div class="item-head"><strong>' + escapeHtml(r.s.symbol) + ' · ' + escapeHtml(r.s.name) + '</strong><strong>' + exactMoney(r.dollars) + '</strong></div><div class="muted">Below target by ' + exactMoney(r.gap) + ' before this purchase. Target: ' + r.s.target + '%. ' + (state.investing.fractional ? (r.shares !== null ? 'Approximately ' + r.shares.toFixed(6) + ' shares using your ' + escapeHtml(r.s.priceDate) + ' quote.' : 'Use a dollar order if your broker supports it; enter a current quote for an estimated share count.') : r.quoteValid && !r.quoteOld ? r.shares + ' whole shares using your ' + escapeHtml(r.s.priceDate) + ' quote.' : 'No whole-share suggestion: enter a quote dated within the last 7 days.') + (r.quoteOld && state.investing.fractional ? ' Quote is older than 7 days; check it before trading.' : '') + '</div></div>').join('');
+        byId('investPlan').innerHTML = notices + rows + (!plan.issues.length && !plan.rows.length ? '<div class="notice neutral">Approved holdings are already at or above their target amounts. No stock purchases suggested.</div>' : '') + '<div class="total-line"><span>Brokerage amount left unallocated</span><strong>' + exactMoney(plan.unallocated) + '</strong></div><p class="fine-print">Only approved targets receive allocations. Unapproved targets, unused target percentages, missing prices, whole-share rounding, or holdings already above target can leave money unallocated. This is still part of your brokerage third.</p>';
+      }
+      let csvDraft = null;
+      function parseCsv(text) {
+        text = text.replace(/^\uFEFF/, '');
+        const first = text.split(/\r?\n/).find(l => l.trim()) || '';
+        const counts = [',','\t',';'].map(delimiter => { let quoted=false, count=0; for (let i=0;i<first.length;i++) { if (first[i] === '"') { if(quoted && first[i+1] === '"') i++; else quoted=!quoted; } else if(!quoted && first[i] === delimiter) count++; } return {delimiter,count}; });
+        const delimiter = counts.sort((a,b) => b.count-a.count)[0].delimiter;
+        const rows=[]; let row=[], value='', quoted=false, closed=false;
+        for (let i=0;i<text.length;i++) {
+          const c=text[i];
+          if (quoted) { if(c==='"') { if(text[i+1]==='"') {value+='"';i++;} else {quoted=false;closed=true;} } else value+=c; }
+          else if(c==='"') { if(value.trim() || closed) throw new Error('Unexpected quote in CSV. Export a standard CSV with a header row.'); quoted=true;value=''; }
+          else if(c===delimiter) {row.push(value);value='';closed=false;}
+          else if(c==='\r'||c==='\n') {if(c==='\r'&&text[i+1]==='\n')i++;row.push(value);if(row.some(x=>x.trim()))rows.push(row);row=[];value='';closed=false;}
+          else { if(closed && c.trim()) throw new Error('Unexpected text after a quoted CSV field.'); if(!closed)value+=c; }
+        }
+        if(quoted) throw new Error('A quoted CSV field was not closed.');
+        row.push(value);if(row.some(x=>x.trim()))rows.push(row);
+        if(rows.length<2) throw new Error('The CSV needs a header row and at least one transaction.');
+        if(rows.length>2001) throw new Error('Import at most 2,000 transactions at a time.');
+        if(rows[0].length>100 || rows[0].length<2) throw new Error('Use a CSV with 2–100 columns and a header row.');
+        const headers=rows.shift().map(x=>x.trim());
+        if(!headers.some(h=>/date/i.test(h))) throw new Error('No date header found. Remove any statement summary lines above the transaction headers.');
+        return {headers, raw:rows, rows:[], accountId:''};
+      }
+      function parseAmount(value) {
+        if(value === undefined || !String(value).trim()) return null;
+        const raw=String(value).trim();
+        let v=raw.replace(/\bUSD\b/gi,'').replace(/[$,\s]/g,'');
+        if(/^\(.+\)$/.test(v)) v='-'+v.slice(1,-1);
+        if(!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)$/.test(v)) return null;
+        const n=Number(v);return Number.isFinite(n)&&Math.abs(n)<=1e12 ? Math.round(n*100)/100 : null;
+      }
+      function csvDate(value) {
+        const v=String(value || '').trim().split(/[ T]/)[0];
+        if(validDate(v))return v;
+        let y,m,d,match;
+        if((match=/^(\d{4})\/(\d{1,2})\/(\d{1,2})$/.exec(v))) [y,m,d]=match.slice(1);
+        else if((match=/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{2}|\d{4})$/.exec(v))) {
+          y=match[3].length===2 ? '20'+match[3] : match[3];
+          [m,d]=byId('csvDateFormat').value==='dmy' ? [match[2],match[1]] : [match[1],match[2]];
+        } else return '';
+        const date=String(y)+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0');return validDate(date)?date:'';
+      }
+      const mapFields=['Date','Note','Amount','Debit','Credit','Category','External','Status','Kind'];
+      function setupMapper() {
+        const patterns = { Date: /^(transaction date|posting date|posted date|date|post date)$/i, Note:/^(description|merchant|name|memo|payee|transaction description)$/i, Amount:/^(amount|transaction amount)$/i,
+          Debit:/^(debit|debits|withdrawal|withdrawals|charge|charges|debit amount)$/i, Credit:/^(credit|credits|deposit|deposits|credit amount)$/i,
+          Category:/^category$/i, External:/^(transaction id|id|reference|reference number|external_id)$/i, Status:/^status$/i, Kind:/^(type|transaction type|kind)$/i };
+        for(const key of mapFields) {
+          const node=byId('map'+key);
+          node.innerHTML='<option value="">Not mapped</option>'+csvDraft.headers.map((h,i)=>'<option value="'+i+'">'+escapeHtml(h || 'Column '+(i+1))+'</option>').join('');
+          let index=csvDraft.headers.findIndex(h=>patterns[key].test(h));
+          if(index<0 && key==='Date') index=csvDraft.headers.findIndex(h=>/date/i.test(h));
+          node.value=index>=0?String(index):'';
+        }
+        byId('csvMapper').hidden=false;byId('csvReview').hidden=true;
+      }
+      async function loadCsv(event) {
+        const file=event.target.files?.[0];if(!file)return;
+        csvDraft=null;byId('csvReview').hidden=true;byId('csvMapper').hidden=true;fieldMessage('csvMessage','');
+        try {
+          if(file.size>2*1024*1024)throw new Error('Choose a CSV smaller than 2 MB.');
+          csvDraft=parseCsv(await file.text());setupMapper();
+          fieldMessage('csvMessage',csvDraft.raw.length+' rows loaded locally. Map the columns, confirm the amount convention, and preview.',true);
+        }catch(e){fieldMessage('csvMessage',e.message);}
+        event.target.value='';
+      }
+      function fingerprint(t) {return JSON.stringify([t.accountId,t.date,cents(t.amount),String(t.note||'').trim().toLowerCase().replace(/\s+/g,' '),t.direction || (['refund','income'].includes(t.kind)?'credit':'debit')]);}
+      function guessCategory(value,note) {
+        const v=String(value || '').toLowerCase().trim(), n=String(note || '').toLowerCase();
+        const exact=CATEGORIES.find(c=>c.toLowerCase()===v);if(exact)return exact;
+        if(/grocery|groceries|supermarket/.test(v))return 'Groceries';
+        if(/dining|restaurant|food.*drink|entertainment/.test(v))return 'Going out';
+        if(/gas|fuel/.test(v))return 'Gas';
+        if(/auto|vehicle|transport/.test(v))return 'Vehicle';
+        if(/bill|utilit|rent|subscription/.test(v))return 'Bills';
+        if(/grocery|trader joe|aldi|kroger|safeway|whole foods/.test(n))return 'Groceries';
+        if(/restaurant|coffee|starbucks|chipotle|mcdonald/.test(n))return 'Going out';
+        return 'Other';
+      }
+      function guessKind(value,note,direction,account) {
+        const v=String(value || '').toLowerCase().trim(), n=String(note || '').toLowerCase();
+        if(/^(transfer|payment|card payment|transfer \/ card payment|transfer \/ payment)$/.test(v))return 'transfer';
+        if(/^(income|deposit|payroll|direct deposit)$/.test(v))return 'income';
+        if(/^(refund|return)$/.test(v))return 'refund';
+        if(/\btransfer\b|\bautopay\b|credit card payment|payment.*thank you|thank you.*payment/.test(n) || (account.type==='credit'&&direction==='credit'&&/\bpayment\b/.test(n)))return 'transfer';
+        if(direction==='debit')return 'expense';
+        if(/refund|\breturn\b|reversal/.test(n))return 'refund';
+        return account.type==='credit'?'refund':'income';
+      }
+      function previewCsv() {
+        if(!csvDraft)return;
+        const account=state.accounts.find(a=>a.id===byId('csvAccount').value);
+        if(!account)return fieldMessage('csvMessage','Add and choose an account for this import.');
+        const map=Object.fromEntries(mapFields.map(k=>[k,byId('map'+k).value]));
+        if(map.Date===''||map.Note===''||(map.Amount===''&&map.Debit===''&&map.Credit===''))return fieldMessage('csvMessage','Map a date, description, and either an amount or debit / credit columns.');
+        const picked=Object.values(map).filter(v=>v!=='');
+        if(new Set(picked).size!==picked.length)return fieldMessage('csvMessage','Each mapped field needs its own column.');
+        csvDraft.accountId=account.id;
+        const existing=new Map(), ext=new Set(), seen=new Map(), fileIds=new Set();
+        for(const tx of state.transactions) {const key=fingerprint(tx);existing.set(key,(existing.get(key)||0)+1);if(tx.externalId&&tx.accountId===account.id)ext.add(tx.externalId);}
+        csvDraft.rows=csvDraft.raw.map((raw,index)=>{
+          const get=key=>map[key]===''?'':raw[Number(map[key])]||'';
+          const date=csvDate(get('Date')), note=textValue(get('Note')), externalId=textValue(get('External'));
+          let signed, error='', warnings=[];
+          if(raw.length!==csvDraft.headers.length)error='Column count differs from header';
+          if(map.Amount!=='') {const n=parseAmount(get('Amount'));signed=n===null?null:n*(byId('csvSign').value==='negative'?-1:1);}
+          else {
+            const d=parseAmount(get('Debit')),c=parseAmount(get('Credit'));
+            if((String(get('Debit')).trim()&&d===null)||(String(get('Credit')).trim()&&c===null))signed=null;
+            else if(d&&c){signed=null;error='Both debit and credit contain amounts';}
+            else signed=(d===null&&c===null)?null:Math.abs(d||0)-Math.abs(c||0);
+          }
+          if(!date)error=error||'Invalid date';
+          if(!note.trim())error=error||'Missing description';
+          if(signed===null || signed===0)error=error||'Invalid or zero amount';
+          if(date>localISODate())error=error||'Future / unposted date';
+          const direction=signed<0?'credit':'debit', amount=Math.abs(signed||0);
+          const pending=/pending|authoriz|processing/i.test(get('Status'));
+          const kind=guessKind(get('Kind'),note,direction,account),category=guessCategory(get('Category'),note);
+          const row={index,date,note,amount,direction,kind,category,accountId:account.id,externalId,error,pending,selected:true,duplicate:false};
+          if(!error&&!pending){
+            const key=fingerprint(row), count=(seen.get(key)||0)+1;seen.set(key,count);
+            row.duplicate=externalId?(ext.has(externalId)||fileIds.has(externalId)):(count<=(existing.get(key)||0));
+            if(externalId)fileIds.add(externalId);
+          }
+          if(kind==='transfer')warnings.push('Check payment / transfer');
+          if(direction==='credit'&&kind!=='transfer')warnings.push('Check refund vs. income');
+          row.warning=error||(pending?'Pending: excluded':row.duplicate?'Already imported / matching entry':warnings.join('; ')||'Check category');
+          row.selected=!error&&!pending&&!row.duplicate;return row;
+        });
+        byId('csvReview').hidden=false;renderCsvRows();fieldMessage('csvMessage','Preview ready. Review types, categories, and duplicates before importing.',true);
+      }
+      function renderCsvRows() {
+        const rows=csvDraft.rows;
+        byId('csvRows').innerHTML=rows.map(r=>'<tr class="'+(r.error||r.pending?'invalid-row':r.duplicate?'duplicate-row':'')+'" data-csv-row="'+r.index+'"><td><input type="checkbox" data-csv-key="selected" aria-label="Import row '+(r.index+1)+'"'+(r.selected?' checked':'')+(r.error||r.pending||r.duplicate?' disabled':'')+'></td><td>'+escapeHtml(r.date||'Invalid')+'</td><td>'+escapeHtml(r.note)+'</td><td>'+exactMoney(r.amount)+'</td><td><select data-csv-key="kind" aria-label="Entry type for row '+(r.index+1)+'"'+(r.error||r.pending||r.duplicate?' disabled':'')+'>'+KINDS.map(k=>'<option value="'+k+'"'+(k===r.kind?' selected':'')+'>'+kindLabel(k)+'</option>').join('')+'</select></td><td><select data-csv-key="category" aria-label="Category for row '+(r.index+1)+'"'+(r.error||r.pending||r.duplicate?' disabled':'')+'>'+CATEGORIES.map(c=>'<option'+(c===r.category?' selected':'')+'>'+c+'</option>').join('')+'</select></td><td>'+escapeHtml(r.warning)+'</td></tr>').join('');
+        updateCsvSummary();
+      }
+      function updateCsvSummary() {
+        if(!csvDraft)return;
+        const r=csvDraft.rows,selected=r.filter(r=>r.selected),debits=selected.filter(r=>r.kind==='expense').reduce((s,r)=>s+r.amount,0),refunds=selected.filter(r=>r.kind==='refund').reduce((s,r)=>s+r.amount,0);
+        setText('csvReviewSummary',selected.length+' selected · '+r.filter(r=>r.duplicate).length+' duplicates · '+r.filter(r=>r.error||r.pending).length+' invalid / pending. Purchases '+exactMoney(debits)+' less refunds '+exactMoney(refunds)+' = '+exactMoney(debits-refunds)+' net spending.');
+        byId('commitCsv').disabled=!selected.length;
+      }
+      function cancelCsv() {csvDraft=null;byId('csvMapper').hidden=true;byId('csvReview').hidden=true;fieldMessage('csvMessage','');}
+      function commitCsv() {
+        if(!csvDraft)return;
+        if(csvDraft.accountId!==byId('csvAccount').value)return fieldMessage('csvMessage','The account changed. Preview again before importing.');
+        const rows=csvDraft.rows.filter(r=>r.selected&&!r.error&&!r.pending&&!r.duplicate),account=state.accounts.find(a=>a.id===csvDraft.accountId);
+        if(!rows.length||!account)return fieldMessage('csvMessage','Choose an account and at least one valid new row.');
+        if(state.transactions.length+rows.length>20000)return fieldMessage('csvMessage','This would exceed 20,000 saved entries. Export and archive older activity first.');
+        const batch=uid();
+        state.transactions.push(...rows.map(r=>({id:uid(),amount:r.amount,date:r.date,note:r.note,kind:r.kind,category:r.category,externalId:r.externalId,batch,
+          ...accountTransactionFields(account.id,r.amount,r.category,r.kind),direction:r.direction,createdAt:new Date().toISOString()})));
+        state.lastImportBatch=batch;persist();cancelCsv();byId('undoImport').hidden=false;renderComputed();
+        fieldMessage('csvMessage','Imported '+rows.length+' entries. Balance snapshots and income estimates are unchanged.',true);showToast('CSV imported');
+      }
+      function exportActivity() {
+        const rows=[['date','description','amount','category','type','account','external_id','estimated_rewards_dollars']];
+        for(const t of state.transactions) rows.push([t.date,t.note,t.direction==='credit'||['refund','income'].includes(t.kind)?-t.amount:t.amount,t.category,t.kind||'expense',t.accountName||'',t.externalId||'',t.rewardEstimate||0]);
+        downloadFile('thirds-activity-'+localISODate()+'.csv',csvText(rows));
+      }
+      function exportPlan() {
+        const plan=investmentPlan(),p=plan.p;
+        const rows=[['date','section','ticker','amount_usd','estimated_shares','notes'],[localISODate(),'Savings','',p.savings,'','One third'],[localISODate(),'Roth IRA','',p.roth,'','Check remaining eligible contribution room'],[localISODate(),'Spending','',p.spending,'','One third'],[localISODate(),'Brokerage budget','',p.brokerage,'','Total budget; stock rows below are portions of this amount']];
+        for(const r of plan.rows)rows.push([localISODate(),'Brokerage candidate',r.s.symbol,r.dollars,r.shares??'', 'Based on your target; '+(r.quoteValid?'user quote '+r.s.priceDate:'no quote supplied')]);
+        rows.push([localISODate(),'Brokerage unallocated','',Number(plan.unallocated.toFixed(2)),'',plan.issues.join(' ')||'Review before trading. No orders placed.']);
+        downloadFile('thirds-paycheck-plan-'+localISODate()+'.csv',csvText(rows));
+      }
+      function refreshExtensions() {
+        cancelCsv(); resetAccountForm();resetGoalForm();refreshAccountOptions();refreshInvestInputs();renderStocks();renderComputed();
+        byId('undoImport').hidden=!state.lastImportBatch||!state.transactions.some(t=>t.batch===state.lastImportBatch);
+      }
+      function setupExtensions() {
+        byId('activityMonth').addEventListener('input',renderActivity);
+        byId('accountForm').addEventListener('submit',saveAccount);byId('cancelAccount').addEventListener('click',resetAccountForm);
+        byId('accountType').addEventListener('change',()=>{const credit=byId('accountType').value==='credit';byId('cardFields').hidden=!credit;setText('balanceLabel',credit?'Amount owed ($) · negative = credit':'Current balance ($)');});
+        byId('accountList').addEventListener('click',event=>{
+          const edit=event.target.closest('[data-edit-account]'),del=event.target.closest('[data-delete-account]');if(edit)return editAccount(edit.dataset.editAccount);
+          if(del){const id=del.dataset.deleteAccount,account=state.accounts.find(a=>a.id===id);if(!account)return;
+            if(!confirm('Remove '+account.name+'? Saved activity stays in your log. Linked goals will be tracked separately.'))return;
+            state.accounts=state.accounts.filter(a=>a.id!==id);state.goals.forEach(g=>{if(g.accountId===id)g.accountId='';});
+            if(byId('accountId').value===id)resetAccountForm();if(csvDraft?.accountId===id)cancelCsv();
+            persist();refreshAccountOptions();renderComputed();}
+        });
+        byId('exportAccounts').addEventListener('click',()=>downloadFile('thirds-accounts-'+localISODate()+'.csv',csvText([['nickname','type','balance_usd','balance_date','reward_unit','reward_balance','cents_per_point','base_rate','grocery_rate','dining_rate','gas_rate'],...state.accounts.map(a=>[a.name,a.type,a.balance,a.date,a.rewardUnit,a.rewardBalance,a.cpp,a.rates.base,a.rates.Groceries,a.rates['Going out'],a.rates.Gas])])));
+        byId('exportTransactions').addEventListener('click',exportActivity);
+        for(const id of ['bestCategory','bestAmount'])byId(id).addEventListener('input',renderRewards);
+        byId('goalForm').addEventListener('submit',saveGoal);byId('cancelGoal').addEventListener('click',resetGoalForm);
+        byId('goalList').addEventListener('click',event=>{
+          const edit=event.target.closest('[data-edit-goal]'),del=event.target.closest('[data-delete-goal]');if(edit)return editGoal(edit.dataset.editGoal);
+          if(del&&confirm('Remove this goal? Account balances will stay the same.')){state.goals=state.goals.filter(g=>g.id!==del.dataset.deleteGoal);if(byId('goalId').value===del.dataset.deleteGoal)resetGoalForm();persist();renderGoals();}
+        });
+        byId('csvFile').addEventListener('change',loadCsv);byId('previewCsv').addEventListener('click',previewCsv);byId('cancelCsv').addEventListener('click',cancelCsv);byId('commitCsv').addEventListener('click',commitCsv);
+        for(const id of [...mapFields.map(k=>'map'+k),'csvAccount','csvSign','csvDateFormat'])byId(id).addEventListener('change',()=>{byId('csvReview').hidden=true;if(csvDraft)csvDraft.rows=[];});
+        byId('csvRows').addEventListener('change',event=>{
+          const node=event.target.closest('[data-csv-key]'),row=node?.closest('[data-csv-row]');if(!node||!row||!csvDraft)return;
+          const item=csvDraft.rows[Number(row.dataset.csvRow)];if(item.error||item.pending||item.duplicate)return;
+          item[node.dataset.csvKey]=node.type==='checkbox'?node.checked:node.value;updateCsvSummary();
+        });
+        byId('csvTemplate').addEventListener('click',()=>downloadFile('thirds-bank-import-template.csv',csvText([['Date','Description','Amount','Category','Type','Transaction ID','Status'],[localISODate(),'Example grocery purchase',50,'Groceries','expense','example-1','posted'],[localISODate(),'Example card payment',-100,'Other','transfer','example-2','posted']])));
+        byId('undoImport').addEventListener('click',()=>{
+          const count=state.transactions.filter(t=>t.batch===state.lastImportBatch).length;
+          if(!count){byId('undoImport').hidden=true;return;}
+          if(!confirm('Remove the '+count+' entries in the last CSV import?'))return;
+          state.transactions=state.transactions.filter(t=>t.batch!==state.lastImportBatch);state.lastImportBatch='';persist();cancelCsv();byId('undoImport').hidden=true;renderComputed();showToast('Last CSV import undone');
+        });
+        const invInputs={payFrequency:'frequency',payNet:'payNet',investHorizon:'horizon',otherHoldings:'otherHoldings',fractionalShares:'fractional',investRisk:'risk'};
+        for(const [id,key] of Object.entries(invInputs))byId(id).addEventListener('input',event=>{
+          const input=event.target;state.investing[key]=input.type==='checkbox'?input.checked:['frequency','otherHoldings','payNet'].includes(key)?(key==='payNet'&&input.value===''?'':bounded(input.value)):input.value;persist();renderInvestPlan();
+        });
+        byId('addStock').addEventListener('click',()=>{if(state.investing.stocks.length>=50)return showToast('You can track up to 50 stocks');state.investing.stocks.push({id:uid(),symbol:'',name:'',target:0,held:0,price:0,priceDate:'',approved:false});persist();renderStocks();renderInvestPlan();byId('stockList').lastElementChild.querySelector('input').focus();});
+        byId('stockList').addEventListener('click',event=>{const del=event.target.closest('[data-remove-stock]');if(!del)return;state.investing.stocks=state.investing.stocks.filter(s=>s.id!==del.dataset.removeStock);persist();renderStocks();renderInvestPlan();});
+        byId('stockList').addEventListener('input',event=>{
+          const input=event.target.closest('[data-stock-key]'),row=input?.closest('[data-stock]');if(!row)return;
+          const s=state.investing.stocks.find(s=>s.id===row.dataset.stock),key=input.dataset.stockKey;
+          if(key==='symbol'){s.symbol=input.value.toUpperCase().replace(/[^A-Z0-9.\-]/g,'').slice(0,10);s.approved=false;s.name='';s.price=0;s.priceDate='';s.held=0;
+            input.value=s.symbol;row.querySelector('.symbol').textContent=s.symbol||'NEW';row.querySelector('p.muted').textContent='';
+            for(const k of ['name','priceDate'])row.querySelector('[data-stock-key="'+k+'"]').value='';
+            for(const k of ['price','held'])row.querySelector('[data-stock-key="'+k+'"]').value='0';
+            row.querySelector('[data-stock-key="approved"]').checked=false;
+            row.querySelector('.stock-research').href='https://www.sec.gov/edgar/search/#/q='+encodeURIComponent(s.symbol);
+            row.querySelector('.stock-quote').href='https://finance.yahoo.com/quote/'+encodeURIComponent(s.symbol)+'/';
+          } else if(key==='approved')s.approved=input.checked;
+          else if(['target','held','price'].includes(key))s[key]=bounded(input.value,key==='target'?100:1e12);
+          else if(key==='priceDate')s.priceDate=validDate(input.value)?input.value:'';
+          else if(key==='name'){s.name=input.value.slice(0,60);row.querySelector('p.muted').textContent=s.name;}
+          persist();renderInvestPlan();
+        });
+        byId('exportInvestPlan').addEventListener('click',exportPlan);
+      }
+
+      function showToast(message) {
+        const toast = byId('toast');
+        toast.textContent = message;
+        toast.classList.add('show');
+        clearTimeout(showToast.timer);
+        showToast.timer = setTimeout(() => toast.classList.remove('show'), 2200);
+      }
+
+      function showView(name) {
+        document.querySelectorAll('.view').forEach(view => view.classList.toggle('active', view.id === 'view-' + name));
+        document.querySelectorAll('[data-view]').forEach(button => button.classList.toggle('active', button.dataset.view === name));
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      function setupEvents() {
+        document.querySelectorAll('[data-view]').forEach(button => button.addEventListener('click', () => showView(button.dataset.view)));
+
+        byId('addBill').addEventListener('click', () => {
+          state.bills.push({ id: uid(), name: 'New bill', amount: 0 });
+          persist();
+          renderBills();
+          const names = byId('billList').querySelectorAll('.bill-name');
+          const last = names[names.length - 1];
+          if (last) { last.focus(); last.select(); }
+        });
+
+        byId('billList').addEventListener('input', event => {
+          const row = event.target.closest('.line-item');
+          if (!row) return;
+          const bill = state.bills.find(item => item.id === row.dataset.id);
+          if (!bill) return;
+          if (event.target.classList.contains('bill-name')) bill.name = event.target.value;
+          if (event.target.classList.contains('bill-amount')) bill.amount = safeNumber(event.target.value);
+          persist();
+          renderComputed();
+        });
+
+        byId('billList').addEventListener('click', event => {
+          const button = event.target.closest('.remove-bill');
+          if (!button) return;
+          const row = button.closest('.line-item');
+          state.bills = state.bills.filter(item => item.id !== row.dataset.id);
+          persist();
+          renderBills();
+        });
+
+        byId('transactionForm').addEventListener('submit', event => {
+          event.preventDefault();
+          const amount = safeNumber(byId('txAmount').value);
+          const date = byId('txDate').value;
+          if (amount <= 0 || !validDate(date) || date > localISODate() || state.transactions.length >= 20000) {
+            const message = byId('transactionMessage');
+            message.hidden = false;
+            message.textContent = state.transactions.length >= 20000 ? 'The 20,000 entry limit has been reached. Export and archive older activity first.' : 'Enter a positive amount and a valid date that is not in the future.';
+            return;
+          }
+          state.transactions.push({
+            id: uid(), amount, date, category: byId('txCategory').value,
+            note: byId('txNote').value.trim(), kind: byId('txKind').value,
+            ...accountTransactionFields(byId('txAccount').value, amount, byId('txCategory').value, byId('txKind').value),
+            createdAt: new Date().toISOString()
+          });
+          persist();
+          byId('txAmount').value = '';
+          byId('txNote').value = '';
+          byId('transactionMessage').hidden = true;
+          renderActivity();
+          renderRewards();
+          showToast('Entry added');
+        });
+
+        byId('transactionList').addEventListener('click', event => {
+          const button = event.target.closest('.delete-tx');
+          if (!button) return;
+          const row = button.closest('.transaction');
+          state.transactions = state.transactions.filter(tx => tx.id !== row.dataset.id);
+          persist();
+          renderActivity();
+          renderRewards();
+          showToast('Entry removed');
+        });
+
+        byId('exportData').addEventListener('click', () => {
+          const blob = new Blob([JSON.stringify({ app: 'Thirds', version: 2, exportedAt: new Date().toISOString(), data: state }, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = 'thirds-finance-backup-' + localISODate() + '.json';
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+          showToast('Backup exported');
+        });
+
+        byId('importData').addEventListener('click', () => byId('importFile').click());
+        byId('importFile').addEventListener('change', async event => {
+          const file = event.target.files?.[0];
+          if (!file) return;
+          try {
+            if (file.size > 10 * 1024 * 1024) throw new Error('Backup too large');
+            const parsed = JSON.parse(await file.text());
+            const candidate = parsed?.data || parsed;
+            if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate) || !['income','diet','vehicle','transactions','accounts','goals','investing'].some(key => Object.hasOwn(candidate, key))) throw new Error('Invalid backup');
+            if (!window.confirm('Replace the current plan, accounts, goals, and activity with this backup? Export your current data first if you need to keep it.')) return;
+            state = mergeState(candidate);
+            persist();
+            refreshStaticInputValues();
+            renderBills();
+            refreshExtensions();
+            showToast('Backup imported');
+          } catch (error) {
+            showToast('That backup could not be imported');
+          } finally {
+            event.target.value = '';
+          }
+        });
+
+        byId('clearData').addEventListener('click', () => {
+          if (!window.confirm('Reset your full plan, accounts, goals, rewards, watchlist, and saved activity on this device?')) return;
+          state = mergeState(null);
+          persist();
+          refreshStaticInputValues();
+          renderBills();
+          refreshExtensions();
+          showToast('All data reset');
+        });
+      }
+
+      function init() {
+        byId('txDate').value = localISODate();
+        byId('txDate').max = localISODate();
+        byId('accountDate').max = localISODate();
+        byId('activityMonth').value = localISODate().slice(0, 7);
+        setupExtensions();
+        bindStaticInputs();
+        setupEvents();
+        renderBills();
+        refreshExtensions();
+      }
+
+      init();
+    })();
+  </script>
+  <script>
+    (() => {
+      'use strict';
+      const installButton = document.getElementById('installApp');
+      const installStatus = document.getElementById('appInstallStatus');
+      const offlineStatus = document.getElementById('appOfflineStatus');
+      const standalone = window.matchMedia('(display-mode: standalone)');
+      let installPrompt = null;
+      let installed = standalone.matches || window.navigator.standalone === true;
+      const installHelp = 'Use your browser menu to install Thirds or add it to your home screen.';
+
+      function updateInstallation() {
+        if (installed || standalone.matches) {
+          installButton.hidden = true;
+          installStatus.textContent = 'Thirds is installed. Open it from your home screen.';
+        } else {
+          installButton.hidden = !installPrompt;
+          installStatus.textContent = installPrompt ? 'Install Thirds to open it in its own app window.' : installHelp;
+        }
+      }
+
+      window.addEventListener('beforeinstallprompt', event => {
+        event.preventDefault();
+        installPrompt = event;
+        updateInstallation();
+      });
+      installButton.addEventListener('click', async () => {
+        if (!installPrompt) return;
+        const prompt = installPrompt;
+        installPrompt = null;
+        installButton.hidden = true;
+        try {
+          await prompt.prompt();
+          const choice = await prompt.userChoice;
+          if (installed) return;
+          installStatus.textContent = choice.outcome === 'accepted'
+            ? 'Installation requested. Open Thirds from your home screen once it finishes.'
+            : installHelp;
+        } catch (error) {
+          if (!installed) installStatus.textContent = installHelp;
+        }
+      });
+      window.addEventListener('appinstalled', () => {
+        installed = true;
+        installPrompt = null;
+        updateInstallation();
+      });
+      standalone.addEventListener('change', updateInstallation);
+      updateInstallation();
+
+      if (!['https:', 'http:'].includes(window.location.protocol)) {
+        installStatus.textContent = 'Open the hosted Thirds website on your phone to install it.';
+        offlineStatus.textContent = 'This downloaded file works locally. Install from the website for offline app access.';
+        return;
+      }
+      if (!window.isSecureContext || !('serviceWorker' in navigator)) {
+        offlineStatus.textContent = 'Offline app access needs a supported browser and a secure website. You can still use your planner here.';
+        return;
+      }
+
+      async function prepareOfflineAccess() {
+        try {
+          const registration = await navigator.serviceWorker.register('./sw.js', { scope: './', updateViaCache: 'none' });
+          function watchInstallation(worker) {
+            if (!worker) return;
+            worker.addEventListener('statechange', () => {
+              if (worker.state === 'redundant' && !registration.active) {
+                offlineStatus.textContent = 'Offline setup could not finish. Reopen Thirds while online to try again.';
+              }
+            });
+          }
+          watchInstallation(registration.installing);
+          registration.addEventListener('updatefound', () => watchInstallation(registration.installing));
+          await navigator.serviceWorker.ready;
+          offlineStatus.textContent = 'Ready offline on this device. Export backups to keep a separate copy of your finances.';
+        } catch (error) {
+          offlineStatus.textContent = 'Offline setup could not finish. Reopen Thirds while online to try again.';
+        }
+      }
+      if (document.readyState === 'complete') prepareOfflineAccess();
+      else window.addEventListener('load', prepareOfflineAccess, { once: true });
+    })();
+  </script>
+</body>
+</html>

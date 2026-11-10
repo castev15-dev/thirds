@@ -1,0 +1,98 @@
+THIRDS — SAMSUNG / ANDROID INSTALLATION
+
+The app is ready to host and install. This package is an installable web app
+(PWA), rather than an Android APK. It has the existing Thirds design, four
+navigation tabs, an app icon, an installation prompt when the browser offers
+one, and offline access after its files finish saving on your phone.
+
+WHAT TO DO FIRST
+
+If you have already entered finances into the old app, open that app and use
+Settings > Export backup. Keep that backup on your own device. It contains
+personal information and does not belong in the website's uploaded files.
+
+HOST IT WITH GITHUB PAGES
+
+1. Extract Thirds_Android_Install.zip on your computer. Open thirds-install.
+2. Sign in at https://github.com/ (or create a free account).
+3. Create a new public repository, for example thirds-planner. The app's code
+   will be public. Your phone's saved finances are separate from these files.
+4. Use the repository's file upload option. Upload index.html,
+   manifest.webmanifest, sw.js, and the entire icons folder. Include
+   .nojekyll if your computer displays it. SETUP.txt is optional.
+   Upload the CONTENTS of thirds-install directly into the repository root;
+   do not put them inside an additional thirds-install folder.
+5. Commit the uploaded files to the main branch.
+6. In the repository, open Settings > Pages. Under Build and deployment,
+   choose Deploy from a branch, then main and /(root). Save.
+7. Wait for Pages to finish publishing, then open the website address shown
+   there. It usually looks like https://YOUR-NAME.github.io/thirds-planner/.
+   Use the address beginning with https://. Do not use the GitHub code page.
+
+INSTALL ON YOUR SAMSUNG
+
+1. Open the published website in Chrome on your Samsung while online.
+2. Open the app's Settings tab. Wait for "Ready offline on this device."
+3. If an Install Thirds button appears, tap it and accept the browser prompt.
+   Otherwise use Chrome's three-dot menu > Install and create shortcut >
+   Install. Some versions call this Install app or Add to Home screen.
+   Choose the installation option when offered. A shortcut alone may still
+   open in a browser tab. Samsung Internet's menu labels may differ.
+4. Open Thirds using its new home-screen or app-drawer icon.
+5. To move existing numbers onto this phone, use Settings > Import backup
+   and choose the backup exported from your previous version. Confirm the
+   replacement only if you want to replace the data currently on the phone.
+6. After offline setup is ready, turn on airplane mode and reopen the app
+   to check that the planner still opens and your numbers remain available.
+
+KEEP YOUR FINANCES
+
+Saved finances remain in this device's browser storage. Installing the app
+does not add a server, account sync, bank connections, encryption, or a lock.
+The offline cache stores app files; your financial data uses the existing
+local storage. External research links still need an internet connection.
+Initial website loading and online updates contact the website host.
+
+Use Settings > Export backup regularly. Clearing browser/site data can erase
+your saved numbers. A new device, different browser, or changed website domain
+will need a backup import. Keep the same website address for future updates.
+The example wage, expenses, and targets are starter settings to customize.
+
+UPDATES
+
+Replace the hosted files at the same website address. When changing app
+files, change VERSION in sw.js (for example v1 to v2), and keep the app's
+local storage key unchanged. After publishing, open the app online so the
+new version can cache, then close and reopen it. An already open app does
+not reload automatically, so work in progress stays on screen.
+
+LOCAL PREVIEW (OPTIONAL)
+
+Opening index.html directly still runs the planner, but installation and
+service-worker offline setup need the hosted website. For computer testing,
+run python3 -m http.server 8000 inside thirds-install, then open
+http://localhost:8000/. Your phone's plain http:// computer-IP address does
+not meet the secure-context requirement; use the HTTPS website on the phone.
+
+TROUBLESHOOTING
+
+No install option: confirm you are on the published HTTPS website in Chrome,
+not a downloaded file, preview window, private tab, or GitHub code page. Close
+and reopen the website after it loads. Follow Chrome's menu if the in-app
+button is not offered; browser installation prompts are not guaranteed.
+
+No offline-ready message: check that all files and icons were uploaded, with
+their names and folder structure unchanged. Reopen the published page while
+online. Avoid clearing site data as a troubleshooting step unless you have
+exported a backup first.
+
+REFERENCE GUIDES
+
+GitHub Pages publishing:
+https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site
+Chrome Android installation:
+https://support.google.com/chrome/answer/9658361?co=GENIE.Platform%3DAndroid
+PWA install requirements:
+https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Making_PWAs_installable
+Offline service workers:
+https://developer.mozilla.org/en-US/docs/Web/API/Service_Worker_API/Using_Service_Workers
